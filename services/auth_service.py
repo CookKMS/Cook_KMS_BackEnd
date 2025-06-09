@@ -1,3 +1,5 @@
+# 사용자 인증 관련 서비스 로직 정의
+# 로그인, 토큰 검증 등 처리
 from flask import jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from models.user import User, RoleEnum
