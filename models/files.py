@@ -1,4 +1,4 @@
-# [파일 모델] 업로드된 파일의 메타데이터 저장용
+#파일 업로드 관련 모델 정의
 from db_init import db
 from datetime import datetime
 
