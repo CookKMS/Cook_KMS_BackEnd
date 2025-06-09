@@ -1,4 +1,4 @@
-# FAQ 관련 API
+#공통 코드 조회 라우트 정의
 
 from flask import Blueprint, request, jsonify
 from models.common import Code
