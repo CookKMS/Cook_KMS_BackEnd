@@ -1,4 +1,4 @@
-# models/common.py
+#공통 코드 모델 통합 정의
 from db_init import db
 
 class Code(db.Model):  # 또는 CommonCode
