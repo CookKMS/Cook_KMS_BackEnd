@@ -1,3 +1,5 @@
+# 지식 등록, 조회, 수정, 삭제 기능 처리 서비스 로직 정의
+# 파일 업로드 연동 포함
 from flask import jsonify, g, current_app
 from models.knowledge import Knowledge
 from db_init import db
