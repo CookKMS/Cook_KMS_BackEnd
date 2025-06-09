@@ -1,3 +1,4 @@
+# 지식관리 모델 정의 
 from db_init import db
 from datetime import datetime
 
