@@ -9,6 +9,7 @@ from routes.files_routes import file_bp
 from routes.faq_routes import faq_bp
 from routes.knowledge_routes import knowledge_bp
 from routes.common_routes import common_bp
+from routes.user_routes import user_bp
 
 
 def create_app():
@@ -24,6 +25,7 @@ def create_app():
     app.register_blueprint(faq_bp, url_prefix="/api/faq")
     app.register_blueprint(knowledge_bp, url_prefix="/api/knowledge")
     app.register_blueprint(common_bp)  
+    app.register_blueprint(user_bp, url_prefix="/api/users")
 
     # 업로드된 파일 정적 접근 라우트
     @app.route("/uploads/<filename>")
@@ -32,3 +34,5 @@ def create_app():
         return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
     return app
+
+
