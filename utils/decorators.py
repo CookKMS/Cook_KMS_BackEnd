@@ -1,4 +1,5 @@
-#  [JWT 인증/인가 데코레이터] access_token 검증 및 권한 체크
+# 인증 관련 데코레이터 정의 모듈
+# JWT 인증, 권한 확인 등의 공통 데코레이터 함수 포함
 from functools import wraps
 from flask import request, jsonify, g
 from models.user import User
