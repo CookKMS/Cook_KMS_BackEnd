@@ -1,3 +1,4 @@
+# FAQ 등록 및 조회 라우트 정의
 from flask import Blueprint, request, jsonify
 from utils.decorators import jwt_required, role_required
 from models.faq import Faq
