@@ -1,4 +1,5 @@
-# [파일 서비스] 저장/삭제/교체/다운로드/게시글 연동 삭제
+# 파일 업로드 및 S3 저장 처리 로직 정의
+# 업로드된 파일의 메타데이터를 DB에 저장
 import os
 from flask import current_app, request, jsonify, send_from_directory, g
 from models.files import File
