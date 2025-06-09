@@ -1,3 +1,4 @@
+#FAQ 모델 구조 정의
 from db_init import db
 from datetime import datetime
 
