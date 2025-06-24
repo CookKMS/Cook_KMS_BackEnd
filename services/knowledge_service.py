@@ -1,96 +1,77 @@
-# 지식 등록, 조회, 수정, 삭제 기능 처리 서비스 로직 정의
-# 파일 업로드 연동 포함
-from flask import jsonify, g, current_app
 from models.knowledge import Knowledge
 from db_init import db
-from werkzeug.utils import secure_filename
-import os
+from datetime import datetime
 
-# 유효성 검사 함수
-def validate_fields(data, required_fields):
-    return all(data.get(field) for field in required_fields)
+def create_knowledge_entry(author_id, data):
+    title = data.get("title")
+    content = data.get("content")
+    category_code = data.get("category_code")
+    file_path = data.get("file_path")
 
-# 지식 등록
-def create_knowledge_entry(data):
-    required = ["title", "category", "content"]
-    if not validate_fields(data, required):
-        return jsonify({"message": "필수 항목이 누락되었습니다."}), 400
+    if not title or not content or not category_code:
+        return {"message": "필수 항목이 누락되었습니다."}, 400
 
     knowledge = Knowledge(
-        title=data.get("title"),
-        category=data.get("category"),
-        content=data.get("content"),
-        file_path=data.get("file_path"),
-        author_id=g.user.id
+        author_id=author_id,
+        title=title,
+        content=content,
+        category_code=category_code,
+        file_path=file_path
     )
     db.session.add(knowledge)
     db.session.commit()
 
-    return jsonify({"message": "지식이 등록되었습니다.", "knowledge_id": knowledge.id}), 201
+    return {"message": "지식이 등록되었습니다.", "knowledge_id": knowledge.id}, 201
 
-# 지식 목록 조회
 def list_knowledge_entries():
-    knowledges = Knowledge.query.order_by(Knowledge.created_at.desc()).all()
-    return jsonify([
-        {
-            "id": k.id,
-            "title": k.title,
-            "category": k.category,
-            "content": k.content,
-            "file_path": k.file_path,
-            "created_at": k.created_at,
-            "updated_at": k.updated_at
-        } for k in knowledges
-    ]), 200
+    entries = Knowledge.query.order_by(Knowledge.created_at.desc()).all()
+    result = [_serialize(entry) for entry in entries]
+    return jsonify(result), 200
 
-# 지식 상세 조회
 def get_knowledge_detail(knowledge_id):
-    knowledge = Knowledge.query.get(knowledge_id)
-    if not knowledge:
-        return jsonify({"message": "지식을 찾을 수 없습니다."}), 404
+    entry = Knowledge.query.get(knowledge_id)
+    if not entry:
+        return {"message": "지식을 찾을 수 없습니다."}, 404
 
-    return jsonify({
-        "id": knowledge.id,
-        "title": knowledge.title,
-        "category": knowledge.category,
-        "content": knowledge.content,
-        "file_path": knowledge.file_path,
-        "created_at": knowledge.created_at,
-        "updated_at": knowledge.updated_at
-    }), 200
+    return jsonify(_serialize(entry)), 200
 
-# 지식 수정 (작성자 본인만 가능, 파일은 선택적으로 교체)
-def update_knowledge_entry(knowledge_id, data, file=None):
-    knowledge = Knowledge.query.get(knowledge_id)
-    if not knowledge:
-        return jsonify({"message": "지식을 찾을 수 없습니다."}), 404
+def update_knowledge_entry(knowledge_id, user_id, data):
+    entry = Knowledge.query.get(knowledge_id)
+    if not entry:
+        return {"message": "지식을 찾을 수 없습니다."}, 404
+    if entry.author_id != user_id:
+        return {"message": "본인만 수정할 수 있습니다."}, 403
 
-    if knowledge.author_id != g.user.id:
-        return jsonify({"message": "수정 권한이 없습니다."}), 403
-
-    for field in ["title", "category", "content"]:
-        if data.get(field):
-            setattr(knowledge, field, data.get(field))
-
-    if file:
-        filename = secure_filename(file.filename)
-        upload_path = current_app.config["UPLOAD_FOLDER"]
-        os.makedirs(upload_path, exist_ok=True)
-        file.save(os.path.join(upload_path, filename))
-        knowledge.file_path = f"/uploads/{filename}"
+    entry.title = data.get("title", entry.title)
+    entry.content = data.get("content", entry.content)
+    entry.category_code = data.get("category_code", entry.category_code)
+    entry.file_path = data.get("file_path", entry.file_path)
+    entry.updated_at = datetime.utcnow()
 
     db.session.commit()
-    return jsonify({"message": "지식이 수정되었습니다."}), 200
+    return {"message": "지식이 수정되었습니다."}, 200
 
-# 지식 삭제 (작성자 또는 관리자)
-def delete_knowledge_entry(knowledge_id):
-    knowledge = Knowledge.query.get(knowledge_id)
-    if not knowledge:
-        return jsonify({"message": "지식을 찾을 수 없습니다."}), 404
+def delete_knowledge_entry(knowledge_id, user_id):
+    entry = Knowledge.query.get(knowledge_id)
+    if not entry:
+        return {"message": "지식을 찾을 수 없습니다."}, 404
 
-    if g.user.id != knowledge.author_id and g.user.role.value != "admin":
-        return jsonify({"message": "삭제 권한이 없습니다."}), 403
+    # 관리자 or 작성자만 삭제 가능
+    if entry.author_id != user_id:
+        return {"message": "본인만 삭제할 수 있습니다."}, 403
 
-    db.session.delete(knowledge)
+    db.session.delete(entry)
     db.session.commit()
-    return jsonify({"message": "지식이 삭제되었습니다."}), 200
+    return {"message": "지식이 삭제되었습니다."}, 200
+
+def _serialize(entry):
+    return {
+        "id": entry.id,
+        "author_id": entry.author_id,
+        "title": entry.title,
+        "content": entry.content,
+        "category_code": entry.category_code,
+        "file_path": entry.file_path,
+        "created_at": entry.created_at,
+        "updated_at": entry.updated_at
+    }

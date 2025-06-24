@@ -1,90 +1,54 @@
-# FAQ 등록 및 조회 라우트 정의
 from flask import Blueprint, request, jsonify
-from utils.decorators import jwt_required, role_required
-from models.faq import Faq
-from db_init import db
-from services.files_service import delete_files_by_board
+from flask_jwt_extended import jwt_required
+from utils.decorators import role_required
+from services.faq_service import (
+    create_faq, get_all_faqs, get_faq_detail,
+    get_faqs_by_category, update_faq, delete_faq
+)
 
-faq_bp = Blueprint("faq_bp", __name__)
+faq_bp = Blueprint("faq_bp", __name__, url_prefix="/api/faq")
 
-# FAQ 등록 (관리자만 가능)
 @faq_bp.route("/create", methods=["POST"])
-@jwt_required
+@jwt_required()
 @role_required("admin")
-def create_faq():
+def create_faq_route():
     data = request.json
-    title = data.get("title")
-    category = data.get("category")
-    content = data.get("content")
-    file_path = data.get("file_path")
+    result, status = create_faq(data)
+    return jsonify(result), status
 
-    if not title or not category or not content:
-        return jsonify({"message": "필수 항목이 누락되었습니다."}), 400
-
-    faq = Faq(
-        title=title,
-        category=category,
-        content=content,
-        file_path=file_path
-    )
-    db.session.add(faq)
-    db.session.commit()
-
-    return jsonify({"message": "FAQ가 등록되었습니다.", "faq_id": faq.id}), 201
-
-# FAQ 전체 조회 (user, employee, admin 모두 가능)
 @faq_bp.route("/", methods=["GET"])
-@jwt_required
+@jwt_required()
 @role_required("user", "employee", "admin")
-def get_all_faqs():
-    faqs = Faq.query.order_by(Faq.created_at.desc()).all()
-    result = [
-        {
-            "id": f.id,
-            "title": f.title,
-            "category": f.category,
-            "content": f.content,
-            "file_path": f.file_path,
-            "created_at": f.created_at,
-            "updated_at": f.updated_at
-        }
-        for f in faqs
-    ]
-    return jsonify(result), 200
+def get_all_faqs_route():
+    result, status = get_all_faqs()
+    return jsonify(result), status
 
-# FAQ 상세 조회 (user, employee, admin)
+@faq_bp.route("/category/<string:category_code>", methods=["GET"])
+@jwt_required()
+@role_required("user", "employee", "admin")
+def get_faqs_by_category_route(category_code):
+    result, status = get_faqs_by_category(category_code)
+    return jsonify(result), status
+
 @faq_bp.route("/<int:faq_id>", methods=["GET"])
-@jwt_required
+@jwt_required()
 @role_required("user", "employee", "admin")
-def get_faq_detail(faq_id):
-    faq = Faq.query.get(faq_id)
-    if not faq:
-        return jsonify({"message": "FAQ를 찾을 수 없습니다."}), 404
+def get_faq_detail_route(faq_id):
+    result, status = get_faq_detail(faq_id)
+    return jsonify(result), status
 
-    result = {
-        "id": faq.id,
-        "title": faq.title,
-        "category": faq.category,
-        "content": faq.content,
-        "file_path": faq.file_path,
-        "created_at": faq.created_at,
-        "updated_at": faq.updated_at
-    }
-    return jsonify(result), 200
-
-# FAQ 삭제 (관리자만 가능)
-@faq_bp.route("/<int:faq_id>", methods=["DELETE"])
-@jwt_required
+@faq_bp.route("/<int:faq_id>", methods=["PUT"])
+@jwt_required()
 @role_required("admin")
-def delete_faq(faq_id):
-    faq = Faq.query.get(faq_id)
-    if not faq:
-        return jsonify({"message": "FAQ를 찾을 수 없습니다."}), 404
+def update_faq_route(faq_id):
+    data = request.json
+    result, status = update_faq(faq_id, data)
+    return jsonify(result), status
 
-    db.session.delete(faq)
-    db.session.commit()
+@faq_bp.route("/<int:faq_id>", methods=["DELETE"])
+@jwt_required()
+@role_required("admin")
+def delete_faq_route(faq_id):
+    result, status = delete_faq(faq_id)
+    return jsonify(result), status
 
-    # board_code '02'는 FAQ용 코드
-    delete_files_by_board("02", faq_id)
-
-    return jsonify({"message": "FAQ 및 첨부 파일이 삭제되었습니다."}), 200

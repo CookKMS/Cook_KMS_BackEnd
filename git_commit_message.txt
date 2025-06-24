@@ -1,0 +1,27 @@
+프로젝트 초기화 및 구조 정리
+
+- routes/: API 엔드포인트 라우트 정의
+  - auth_routes.py: 로그인, 회원가입, 사용자 정보 조회
+  - files_routes.py: 파일 업로드/다운로드/삭제/교체
+  - faq_routes.py: FAQ 등록/조회/삭제
+
+- services/: 라우터와 분리된 비즈니스 로직 처리
+  - auth_service.py: 사용자 생성, 로그인, JWT 발급
+  - files_service.py: 파일 저장, 삭제, 교체, 게시글 연동 삭제
+
+- models/: DB 테이블 모델 정의 (SQLAlchemy)
+  - user.py: 사용자 정보 (role 기반 권한 포함)
+  - files.py: 업로드 파일 정보
+  - faq.py: FAQ 게시글
+  - inquiries.py, inquiry_comments.py, knowledge.py: 문의/댓글/지식 글 구조
+
+- utils/: 인증, 검증, 에러 처리 등 공통 유틸 함수
+  - decorators.py: @jwt_required, @role_required 데코레이터
+  - jwt_helper.py, token_helper.py: JWT 발급/검증 유틸
+  - validators.py: 입력 유효성 검사 함수
+
+- config.py: 환경변수 기반 설정 관리 (.env 연동)
+- db_init.py: SQLAlchemy 초기화
+- app.py: Flask 앱 생성 및 Blueprint 등록
+- .gitignore: venv, __pycache__, uploads 등 Git 추적 제외
+- README.md: 프로젝트 소개 및 실행 가이드

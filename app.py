@@ -10,6 +10,10 @@ from routes.faq_routes import faq_bp
 from routes.knowledge_routes import knowledge_bp
 from routes.common_routes import common_bp
 from routes.user_routes import user_bp
+from routes.faq_routes import faq_bp
+from routes.inquiry_routes import inquiry_bp
+from routes.inquiry_comment_routes import inquiry_comment_bp
+
 
 
 def create_app():
@@ -23,9 +27,12 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(file_bp, url_prefix="/api/file")
     app.register_blueprint(faq_bp, url_prefix="/api/faq")
-    app.register_blueprint(knowledge_bp, url_prefix="/api/knowledge")
-    app.register_blueprint(common_bp)  
+    app.register_blueprint(knowledge_bp, url_prefix="/api/knowledge")   
+    app.register_blueprint(common_bp)
     app.register_blueprint(user_bp, url_prefix="/api/users")
+    app.register_blueprint(inquiry_bp, url_prefix="/api/inquiry")  
+    app.register_blueprint(inquiry_comment_bp, url_prefix="/api/inquiry")
+
 
     # 업로드된 파일 정적 접근 라우트
     @app.route("/uploads/<filename>")
