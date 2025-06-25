@@ -13,8 +13,9 @@ from routes.user_routes import user_bp
 from routes.faq_routes import faq_bp
 from routes.inquiry_routes import inquiry_bp
 from routes.inquiry_comment_routes import inquiry_comment_bp
-
-
+from routes.my_inquiry_routes import my_inquiry_bp
+from routes.admin_dashboard_routes import admin_dashboard_bp
+from routes.my_knowledge_routes import my_knowledge_bp
 
 def create_app():
     app = Flask(__name__)
@@ -32,6 +33,9 @@ def create_app():
     app.register_blueprint(user_bp, url_prefix="/api/users")
     app.register_blueprint(inquiry_bp, url_prefix="/api/inquiry")  
     app.register_blueprint(inquiry_comment_bp, url_prefix="/api/inquiry")
+    app.register_blueprint(my_inquiry_bp, url_prefix="/api/my/inquiries")
+    app.register_blueprint(admin_dashboard_bp, url_prefix="/api/admin/dashboard")
+    app.register_blueprint(my_knowledge_bp, url_prefix="/api/my/knowledge")
 
 
     # 업로드된 파일 정적 접근 라우트
