@@ -19,15 +19,17 @@ def create_comment(inquiry_id, admin_id, data):
     )
     db.session.add(comment)
 
-    # 답변 상태로 변경
-    inquiry.status = "02"  # 공통코드 answer_status = "02": 답변완료
+    # ✅ 상태: 답변 완료로 업데이트
+    inquiry.status = "02"  # answer_status = 02 (답변 완료)
     inquiry.updated_at = datetime.utcnow()
 
     db.session.commit()
     return {"message": "댓글이 등록되었습니다."}, 201
 
 def get_comments_by_inquiry(inquiry_id):
-    comments = InquiryComment.query.filter_by(inquiry_id=inquiry_id).order_by(InquiryComment.created_at.asc()).all()
+    comments = InquiryComment.query.filter_by(inquiry_id=inquiry_id)\
+        .order_by(InquiryComment.created_at.asc()).all()
+    
     result = [
         {
             "id": c.id,
@@ -59,11 +61,13 @@ def delete_comment(comment_id):
     db.session.delete(comment)
     db.session.commit()
 
-    # 남은 댓글이 없는 경우 상태 복구
+    # ✅ 남은 댓글이 없으면 상태 복구
     remaining = InquiryComment.query.filter_by(inquiry_id=inquiry_id).count()
     if remaining == 0:
         inquiry = Inquiry.query.get(inquiry_id)
         if inquiry:
-            inquiry.status = "01"  # 공통코드 answer_status = "01": 대기중
+            inquiry.status = "01"  # answer_status = 01 (답변 대기)
             inquiry.updated_at = datetime.utcnow()
-            db.sess
+            db.session.commit()
+
+    return {"message": "댓글이 삭제되었습니다."}, 200
