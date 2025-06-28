@@ -11,6 +11,10 @@ class Config:
     UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")  # /uploads
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB
 
+    JWT_TOKEN_LOCATION = ['headers']
+    JWT_HEADER_NAME = 'Authorization'
+    JWT_HEADER_TYPE = 'Bearer'
+
     DB_USER = os.getenv("DB_USER")
     DB_PASSWORD = os.getenv("DB_PASSWORD")
     DB_HOST = os.getenv("DB_HOST")

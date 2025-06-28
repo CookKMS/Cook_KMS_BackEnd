@@ -1,0 +1,42 @@
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: 0 0 8px 8px;
+}
+
+.admin-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.admin-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-badge {
+  width: 32px;
+  height: 32px;
+  background-color: #3b82f6;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-logout {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  cursor: pointer;
+}

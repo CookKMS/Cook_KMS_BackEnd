@@ -1,0 +1,118 @@
+/* src/styles/auth/AdminRegisterPage.css */
+
+.admin-register-container {
+  max-width: 400px;
+  margin: 80px auto;
+  padding: 30px;
+  text-align: center;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.admin-register-tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #007aff;
+}
+
+.admin-register-tabs button,
+.admin-register-tabs .tab {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: #fff;
+  cursor: pointer;
+  color: #007aff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.admin-register-tabs .active {
+  background: #007aff;
+  color: #fff;
+}
+
+/* ✅ input + 중복확인 버튼 정렬 */
+.admin-register-form .input-group {
+  display: flex;
+  align-items: stretch; /* 🔥 높이 자동 일치 */
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.admin-register-form input[type="text"],
+.admin-register-form input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #007aff;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+}
+
+.input-group input[type="text"] {
+  margin-bottom: 0; /* 중복 방지 */
+  flex: 1;
+}
+
+.check-button {
+  padding: 11px 16px; /* 좌우 패딩만 */
+  font-size: 14px;
+  font-weight: bold;
+  background: #fff;
+  color: #007aff;
+  border: 2px solid #007aff;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  height: 100%; /* 🔥 input과 높이 일치 */
+  box-sizing: border-box;
+  transition: background-color 0.2s;
+}
+
+.check-button:hover {
+  background-color: #007aff;
+  color: white;
+}
+
+.admin-register-button {
+  width: 100%;
+  padding: 12px;
+  background: #007aff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.admin-register-button:hover {
+  background: #005fd6;
+}
+
+.admin-auth-links {
+  font-size: 13px;
+  color: #666;
+  margin-top: 16px;
+}
+
+.admin-auth-links a {
+  text-decoration: none;
+  color: #007aff;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.admin-auth-links a:hover {
+  color: #005fd6;
+}

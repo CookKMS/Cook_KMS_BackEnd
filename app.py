@@ -21,7 +21,7 @@ from flask_cors import CORS
 
 def create_app():
     # ✅ React 빌드된 정적 파일 폴더 (frontend)
-    app = Flask(__name__, static_folder="frontend", static_url_path="/")
+    app = Flask(__name__, static_folder="frontend/build", static_url_path="/")
     app.config.from_object(Config)
 
     # ✅ DB 초기화

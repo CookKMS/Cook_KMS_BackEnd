@@ -1,0 +1,233 @@
+/* MyPage 기본 레이아웃 */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+  font-family: "Noto Sans KR", sans-serif;
+  background-color: #f8fafd;
+  color: #222;
+}
+
+/* 카드 리스트 */
+.inquiry-card {
+  background: #fff;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+/* 카드 상단 헤더 */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* 상태 태그 */
+.status-tags {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.category-tag {
+  font-size: 0.85rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  background-color: #e0e0e0;
+  font-weight: 600;
+  color: #333;
+}
+
+.answer-status {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.answer-status.answered {
+  background-color: #c8e6c9;
+  color: #2e7d32;
+}
+
+.answer-status.pending {
+  background-color: #ffecb3;
+  color: #f57c00;
+}
+
+.right-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.right-group time {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+/* 수정/삭제 버튼 */
+.btn-edit,
+.btn-delete {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: #007acc;
+  transition: color 0.2s ease;
+}
+
+.btn-edit:hover,
+.btn-delete:hover {
+  color: #0052cc;
+}
+
+.btn-disabled {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+/* 상세 내용 */
+.card-details {
+  margin-top: 1rem;
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+}
+
+.card-details strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.card-details p {
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* 페이지네이션 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.pagination button {
+  border: 1px solid #ccc;
+  background: #fff;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #444;
+  transition: background-color 0.2s ease;
+}
+
+.pagination button.active {
+  background-color: #0052cc;
+  color: white;
+  border-color: #0052cc;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 모달 기본 */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal {
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal h3 {
+  margin-top: 0;
+  font-size: 1.3rem;
+}
+
+.modal label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.modal input,
+.modal select,
+.modal textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-top: 0.25rem;
+  box-sizing: border-box;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.modal-footer button {
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal-footer button:first-child {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.modal-footer button:last-child {
+  background-color: #0052cc;
+  color: #fff;
+}
+
+.modal-footer button:last-child:hover {
+  background-color: #003d99;
+}
+
+.modal.confirm {
+  max-width: 400px;
+}

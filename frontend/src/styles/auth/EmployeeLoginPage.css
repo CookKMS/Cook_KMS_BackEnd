@@ -1,0 +1,89 @@
+/* src/styles/auth/EmployeeLoginPage.css */
+
+.employee-login-container {
+  max-width: 400px;
+  margin: 80px auto;
+  padding: 30px;
+  text-align: center;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.employee-login-tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #007aff;
+}
+
+.employee-login-tabs button,
+.employee-login-tabs .tab {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: #fff;
+  cursor: pointer;
+  color: #007aff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.employee-login-tabs .active {
+  background: #007aff;
+  color: #fff;
+}
+
+.employee-login-form label {
+  display: block;
+  text-align: left;
+  margin-bottom: 4px;
+  color: #007aff;
+  font-weight: bold;
+}
+
+.employee-login-form input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 16px;
+  border: 2px solid #007aff;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.employee-login-button {
+  width: 100%;
+  padding: 12px;
+  background: #007aff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.employee-login-button:hover {
+  background: #005fd6;
+}
+
+.employee-auth-links {
+  font-size: 13px;
+  color: #666;
+  margin-top: 16px;
+}
+
+.employee-auth-links a {
+  text-decoration: none;
+  color: #007aff;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.employee-auth-links a:hover {
+  color: #005fd6;
+}
