@@ -8,6 +8,7 @@ class Config:
     JWT_SECRET_KEY = SECRET_KEY
     JWT_EXPIRATION_DELTA = int(os.getenv("JWT_EXPIRATION_DELTA", 3600))
 
+
     UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")  # /uploads
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB
 

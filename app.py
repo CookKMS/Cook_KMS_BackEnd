@@ -19,6 +19,8 @@ from routes.my_knowledge_routes import my_knowledge_bp
 
 from flask_cors import CORS
 
+from flask_jwt_extended import JWTManager
+
 def create_app():
     # ✅ React 빌드된 정적 파일 폴더 (frontend)
     app = Flask(__name__, static_folder="frontend/build", static_url_path="/")
@@ -29,6 +31,8 @@ def create_app():
 
     # ✅ CORS 허용
     CORS(app)
+
+    jwt = JWTManager(app)
 
     # ✅ API 블루프린트 등록
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
