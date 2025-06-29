@@ -1,7 +1,7 @@
 #사용자 인증 라우트 정의
 from flask import Blueprint, request, jsonify, g
 from services.auth_service import register_user, login_user
-from utils.decorators import jwt_required, role_required
+from utils.decorators import custom_jwt_required, role_required
 
 auth_bp = Blueprint("auth_bp", __name__)
 
@@ -20,7 +20,7 @@ def login():
 
 # 내 정보 조회
 @auth_bp.route("/me", methods=["GET"])
-@jwt_required
+@custom_jwt_required
 def me():
     user = g.user
     return jsonify({
@@ -32,21 +32,21 @@ def me():
 
 # 사용자 전용
 @auth_bp.route("/user-only", methods=["GET"])
-@jwt_required
+@custom_jwt_required
 @role_required("user")
 def user_only():
     return jsonify({"message": "사용자 전용 페이지입니다."}), 200
 
 # 직원 전용
 @auth_bp.route("/employee-only", methods=["GET"])
-@jwt_required
+@custom_jwt_required
 @role_required("employee")
 def employee_only():
     return jsonify({"message": "직원 전용 페이지입니다."}), 200
 
 # 관리자 전용
 @auth_bp.route("/admin-only", methods=["GET"])
-@jwt_required
+@custom_jwt_required
 @role_required("admin")
 def admin_only():
     return jsonify({"message": "관리자 전용 페이지입니다."}), 200

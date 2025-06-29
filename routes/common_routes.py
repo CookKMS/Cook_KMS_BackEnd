@@ -2,12 +2,12 @@
 
 from flask import Blueprint, request, jsonify
 from models.common import Code
-from utils.decorators import jwt_required
+from utils.decorators import custom_jwt_required
 
 common_bp = Blueprint("common_bp", __name__, url_prefix="/api/common")
 
 @common_bp.route("/codes", methods=["GET"])
-@jwt_required
+@custom_jwt_required
 def get_common_codes():
     code_type = request.args.get("type")
     if not code_type:

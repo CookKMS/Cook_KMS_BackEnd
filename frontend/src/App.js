@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import Knowledge from './pages/Knowledge';
 import FAQPage from './pages/FAQPage';
-import MyInquiriesPage from './pages/MyInquiriesPage';
+import InquiryPage from './pages/InquiryPage';
 import MyPage from './pages/MyPage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
@@ -33,7 +33,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/knowledge" element={<Knowledge />} />
         <Route path="/faq" element={<FAQPage />} />
-        <Route path="/my-inquiries" element={<MyInquiriesPage />} />
+        <Route path="/inquiry" element={<InquiryPage />} />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />

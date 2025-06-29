@@ -7,7 +7,7 @@ from config import Config
 import jwt
 
 # 인증 데코레이터
-def jwt_required(f):
+def custom_jwt_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         auth_header = request.headers.get("Authorization", None)
