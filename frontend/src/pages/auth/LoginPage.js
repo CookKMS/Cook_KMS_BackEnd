@@ -52,6 +52,9 @@ function UserLoginPage() {
 
   return (
     <div className="login-container">
+      <Link to="/" className="home-link">
+        <h1>Home</h1>
+      </Link>
       <div className="login-tabs">
         <button className="active">사용자 로그인</button>
         <Link to="/admin-login" className="tab">관리자 로그인</Link>
