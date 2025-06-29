@@ -130,18 +130,48 @@ export default function FaqTable() {
           </tr>
         </thead>
         <tbody>
-          {paginatedFaqs.map(faq => (
-            <tr key={faq.id}>
-              <td>{faq.title}</td>
-              <td>{faq.category}</td>
-              <td>
-                <button className="icon-btn" onClick={() => { setModalType('edit'); setCurrentFaq(faq); }}>✏️</button>
-                <button className="icon-btn" onClick={() => { setModalType('delete'); setCurrentFaq(faq); }}>🗑️</button>
+          {paginatedFaqs.length > 0 ? (
+            paginatedFaqs.map(faq => (
+              <tr key={faq.id}>
+                <td>{faq.title}</td>
+                <td>{faq.category}</td>
+                <td>
+                  <button
+                    className="icon-btn"
+                    onClick={() => {
+                      setModalType('edit');
+                      setCurrentFaq(faq);
+                    }}
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    className="icon-btn"
+                    onClick={() => {
+                      setModalType('delete');
+                      setCurrentFaq(faq);
+                    }}
+                  >
+                    🗑️
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="3" style={{
+                textAlign: 'center',
+                padding: '12px 16px',
+                fontSize: '1rem',
+                color: '#888'
+              }}>
+                등록된 FAQ가 없습니다.
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
+
 
       <div className="pagination">
         {Array.from({ length: totalPages }).map((_, i) => (

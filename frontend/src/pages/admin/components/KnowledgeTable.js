@@ -1,5 +1,4 @@
 // src/pages/admin/components/KnowledgeTable.js
-
 import React, { useEffect, useState } from 'react';
 import axios from '../../../utils/axiosInstance';
 import '../../../styles/Admin/KnowledgeTable.css';
@@ -61,7 +60,6 @@ export default function KnowledgeTable() {
       if (file) {
         const formData = new FormData();
         formData.append('file', file);
-
         const uploadRes = await axios.post('/api/file/upload', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
@@ -93,12 +91,10 @@ export default function KnowledgeTable() {
   return (
     <div className="knowledge-table-wrapper">
       <div className="table-header">
-        <h2>📚 지식 문서 관리</h2>
+        <h2>지식 문서 관리</h2>
         <div className="table-controls">
           <select value={filter} onChange={(e) => { setFilter(e.target.value); setCurrentPage(1); }}>
-            {categories.map((cat) => (
-              <option key={cat}>{cat}</option>
-            ))}
+            {categories.map((cat) => <option key={cat}>{cat}</option>)}
           </select>
           <input
             type="text"
@@ -106,7 +102,9 @@ export default function KnowledgeTable() {
             value={search}
             onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
           />
-          <button onClick={() => setShowModal(true)}>+ 문서 추가</button>
+          <button className="btn-new" onClick={() => { setEditingItem(null); setShowModal(true); }}>
+            + 문서 추가
+          </button>
         </div>
       </div>
 
@@ -120,20 +118,28 @@ export default function KnowledgeTable() {
           </tr>
         </thead>
         <tbody>
-          {paged.map((item) => (
-            <tr key={item.id}>
-              <td>{item.category}</td>
-              <td>{item.title}</td>
-              <td>{item.created_at?.slice(0, 10)}</td>
-              <td>
-                <button onClick={() => { setEditingItem(item); setShowModal(true); }}>✏️</button>
-                <button onClick={() => setConfirmDeleteId(item.id)}>🗑️</button>
-              </td>
-            </tr>
-          ))}
-          {paged.length === 0 && (
+          {paged.length > 0 ? (
+            paged.map(item => (
+              <tr key={item.id}>
+                <td>{item.category}</td>
+                <td>{item.title}</td>
+                <td>{item.created_at?.slice(0, 10)}</td>
+                <td>
+                  <button className="icon-btn" onClick={() => { setEditingItem(item); setShowModal(true); }}>✏️</button>
+                  <button className="icon-btn" onClick={() => setConfirmDeleteId(item.id)}>🗑️</button>
+                </td>
+              </tr>
+            ))
+          ) : (
             <tr>
-              <td colSpan="4" style={{ textAlign: 'center' }}>데이터가 없습니다.</td>
+              <td colSpan="4" style={{
+                textAlign: 'center',
+                padding: '12px 16px',
+                fontSize: '1rem',
+                color: '#888'
+              }}>
+                등록된 지식 문서가 없습니다.
+              </td>
             </tr>
           )}
         </tbody>
@@ -157,31 +163,46 @@ export default function KnowledgeTable() {
           <form className="modal" onClick={(e) => e.stopPropagation()} onSubmit={handleSave}>
             <h3>{editingItem ? '문서 수정' : '문서 등록'}</h3>
 
-            <label>제목</label>
-            <input name="title" defaultValue={editingItem?.title || ''} required />
+            <div className="modal-row">
+              <label>제목</label>
+              <div className="input-area">
+                <input name="title" defaultValue={editingItem?.title || ''} required />
+              </div>
+            </div>
 
-            <label>카테고리</label>
-            <select name="category" defaultValue={editingItem?.category || ''} required>
-              <option value="">카테고리 선택</option>
-              {categories.filter(c => c !== '전체').map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
+            <div className="modal-row">
+              <label>카테고리</label>
+              <div className="input-area">
+                <select name="category" defaultValue={editingItem?.category || ''} required>
+                  <option value="">카테고리 선택</option>
+                  {categories.filter(c => c !== '전체').map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
-            <label>내용</label>
-            <textarea name="content" defaultValue={editingItem?.content || ''} rows={5} required />
+            <div className="modal-row">
+              <label>내용</label>
+              <div className="input-area">
+                <textarea name="content" defaultValue={editingItem?.content || ''} rows={5} required />
+              </div>
+            </div>
 
-            <label>첨부 파일</label>
-            <input name="file" type="file" accept=".pdf,.jpg,.jpeg" />
+            <div className="modal-row">
+              <label>첨부 파일</label>
+              <div className="input-area">
+                <input name="file" type="file" accept=".pdf,.jpg,.jpeg" />
+              </div>
+            </div>
 
-            <div className="modal-footer">
-              <button type="button" onClick={() => setShowModal(false)}>취소</button>
-              <button type="submit">저장</button> {/* ✅ 중요 */}
+            <div className="modal-actions">
+              <button type="button" className="cancel" onClick={() => setShowModal(false)}>취소</button>
+              <button type="submit" className="primary">저장</button>
             </div>
           </form>
         </div>
       )}
-
 
       {/* 삭제 확인 모달 */}
       {confirmDeleteId && (
@@ -189,9 +210,9 @@ export default function KnowledgeTable() {
           <div className="modal confirm" onClick={(e) => e.stopPropagation()}>
             <h3>삭제 확인</h3>
             <p>정말로 삭제하시겠습니까?</p>
-            <div className="modal-footer">
-              <button onClick={() => setConfirmDeleteId(null)}>취소</button>
-              <button onClick={handleDelete}>삭제</button>
+            <div className="modal-actions">
+              <button className="cancel" onClick={() => setConfirmDeleteId(null)}>취소</button>
+              <button className="danger" onClick={handleDelete}>삭제</button>
             </div>
           </div>
         </div>
