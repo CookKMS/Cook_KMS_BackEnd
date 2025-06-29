@@ -161,7 +161,7 @@ export default function MyInquiriesPage() {
           </div>
 
           <div className="inquiry-header">
-            <h3>나의 문의 내역</h3>
+            <h3>전체 문의 내역</h3>
             <span>총 {filtered.length}건</span>
           </div>
 

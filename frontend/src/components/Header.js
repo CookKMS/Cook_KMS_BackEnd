@@ -20,7 +20,7 @@ function Header() {
 
   const menuItems = [
     { path: '/', label: 'Home' },
-    { path: '/my-inquiries', label: '제조사 문의' },
+    { path: '/my-inquiries', label: '고객사 문의' },
     { path: '/faq', label: 'FAQ' },
     { path: '/mypage', label: 'MyPage' },
   ];
@@ -28,7 +28,7 @@ function Header() {
   return (
     <header className="main-header">
       <div className="left-section">
-        <div className="logo">지식관리</div>
+        <div className="logo">사용자 포털</div>
         <nav className="nav-menu">
           {menuItems.map((item) => (
             <Link
