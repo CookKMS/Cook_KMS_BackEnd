@@ -1,14 +1,18 @@
 from models.inquiry import Inquiry
 from db_init import db
 from datetime import datetime
+from services.my_inquiry_service import get_user_role  # 권한 확인 함수 사용
 
 def create_inquiry(user_id, data):
+    print(">> inquiry 생성 요청 도착:", data)  # 요청 확인용
+
     title = data.get("title")
     content = data.get("content")
     category_code = data.get("category_code")
     file_path = data.get("file_path")
 
     if not title or not content or not category_code:
+        print(">> 필수 항목 누락됨")
         return {"message": "필수 항목이 누락되었습니다."}, 400
 
     inquiry = Inquiry(
@@ -21,6 +25,7 @@ def create_inquiry(user_id, data):
     )
     db.session.add(inquiry)
     db.session.commit()
+    print(">> 문의 저장 완료, ID:", inquiry.id)
     return {"message": "문의가 등록되었습니다.", "inquiry_id": inquiry.id}, 201
 
 def get_all_inquiries():
@@ -39,20 +44,28 @@ def get_inquiries_by_category(category_code):
     result = [_serialize(i) for i in inquiries]
     return result, 200
 
+
+
 def update_inquiry(inquiry_id, user_id, data):
     inquiry = Inquiry.query.get(inquiry_id)
     if not inquiry:
         return {"message": "문의글을 찾을 수 없습니다."}, 404
-    if inquiry.user_id != user_id:
+
+    role = get_user_role(user_id)
+    if inquiry.user_id != user_id and role != "admin":
         return {"message": "본인만 수정할 수 있습니다."}, 403
 
+    # 필드 업데이트
     inquiry.title = data.get("title", inquiry.title)
     inquiry.content = data.get("content", inquiry.content)
     inquiry.category_code = data.get("category_code", inquiry.category_code)
+    inquiry.status = data.get("status", inquiry.status)
     inquiry.file_path = data.get("file_path", inquiry.file_path)
     inquiry.updated_at = datetime.utcnow()
     db.session.commit()
+
     return {"message": "문의가 수정되었습니다."}, 200
+
 
 def delete_inquiry(inquiry_id, user_id):
     inquiry = Inquiry.query.get(inquiry_id)

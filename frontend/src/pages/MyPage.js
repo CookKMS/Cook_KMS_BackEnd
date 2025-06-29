@@ -13,18 +13,20 @@ export default function MyPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const inquiriesPerPage = 5;
 
-  // ✅ 나의 문의 목록 불러오기
+   // ✅ 나의 문의 목록 불러오기
   useEffect(() => {
-    const fetchMyInquiries = async () => {
-      try {
-        const res = await axios.get("/api/my/inquiries"); // ✅ 수정됨
-        setInquiries(res.data.data);
-      } catch (err) {
-        console.error("나의 문의 불러오기 실패:", err);
-      }
-    };
-    fetchMyInquiries();
+   const fetchMyInquiries = async () => {
+     try {
+       const res = await axios.get("/api/my/inquiries");
+       setInquiries(res.data.inquiries); // ✅ 수정됨
+     } catch (err) {
+       console.error("나의 문의 불러오기 실패:", err);
+       setInquiries([]); // 방어
+     }
+   };
+   fetchMyInquiries();
   }, []);
+ 
 
   const totalPages = Math.ceil(inquiries.length / inquiriesPerPage);
   const paged = inquiries.slice(

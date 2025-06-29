@@ -8,11 +8,35 @@ def get_user_role(user_id):
     user = db.session.query(User).filter_by(id=user_id).first()
     return user.role if user else None
 
-# 코드맵 생성 (code_key → code_name)
+# 코드맵 생성 (code_key → code_value)
 def load_code_map(code_type):
     codes = db.session.query(Code).filter_by(code_type=code_type).all()
     return {code.code_key: code.code_value for code in codes}
 
+# 🔧 댓글 포함 직렬화 함수
+def _serialize(inquiry):
+    return {
+        "id": inquiry.id,
+        "title": inquiry.title,
+        "content": inquiry.content,
+        "category_code": inquiry.category_code,
+        "status": inquiry.status,
+        "file_path": inquiry.file_path,
+        "user_id": inquiry.user_id,
+        "created_at": inquiry.created_at.isoformat(),
+        "updated_at": inquiry.updated_at.isoformat() if inquiry.updated_at else None,
+
+        # ✅ 댓글 포함
+        "comments": [
+            {
+                "comment_id": c.id,
+                "admin_id": c.admin_id,
+                "content": c.content,
+                "created_at": c.created_at.isoformat()
+            }
+            for c in inquiry.comments
+        ]
+    }
 
 # 내 문의 목록 조회 (ADMIN 차단 + 코드명 매핑)
 def get_my_inquiries(user_id, page, size):
@@ -38,17 +62,10 @@ def get_my_inquiries(user_id, page, size):
 
     result = []
     for inquiry in inquiries:
-        result.append({
-            'id': inquiry.id,
-            'title': inquiry.title,
-            'content': inquiry.content,
-            'category_code': inquiry.category_code,
-            'category_name': category_map.get(inquiry.category_code, ''),
-            'status': inquiry.status,
-            'status_name': status_map.get(inquiry.status, ''),
-            'file_path': inquiry.file_path,
-            'created_at': inquiry.created_at.isoformat()
-        })
+        item = _serialize(inquiry)
+        item['category_name'] = category_map.get(inquiry.category_code, '')
+        item['status_name'] = status_map.get(inquiry.status, '')
+        result.append(item)
 
     return {
         'total': total,
@@ -57,7 +74,6 @@ def get_my_inquiries(user_id, page, size):
         'inquiries': result
     }
 
-# 내 문의 수정 (ADMIN 차단)
 def update_my_inquiry(user_id, inquiry_id, title, content):
     role = get_user_role(user_id)
     if role == 'admin':
@@ -76,7 +92,6 @@ def update_my_inquiry(user_id, inquiry_id, title, content):
         db.session.rollback()
         return False
 
-# 내 문의 삭제 (ADMIN 차단)
 def delete_my_inquiry(user_id, inquiry_id):
     role = get_user_role(user_id)
     if role == 'admin':

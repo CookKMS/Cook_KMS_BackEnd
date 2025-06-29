@@ -27,13 +27,15 @@ export default function MyInquiriesPage() {
 
   // ✅ 나의 문의 내역 불러오기
   const fetchInquiries = async () => {
-    try {
-      const res = await axios.get("/api/my/inquiries");
-      setInquiries(res.data);
-    } catch (err) {
-      console.error("나의 문의 불러오기 실패:", err);
-    }
-  };
+  try {
+    const res = await axios.get("/api/my/inquiries");
+    setInquiries(res.data.inquiries);  // ✅ 반드시 inquiries만 추출해서 저장
+  } catch (err) {
+    console.error("나의 문의 불러오기 실패:", err);
+    setInquiries([]);  // ❗ 실패 시에도 빈 배열로 초기화
+  }
+};
+
 
   useEffect(() => {
     fetchInquiries();
@@ -61,18 +63,22 @@ export default function MyInquiriesPage() {
         file_id = uploadRes.data.file_id;
       }
 
-      const payload = {
-        title,
-        content: inquiryContent,
-        category,
-        file_path: file_id ? `/api/file/download/${file_id}` : null,
-      };
+        const payload = {
+      title,
+      content: inquiryContent,
+      category_code: category,
+      file_path: file_id ? `/api/file/download/${file_id}` : null,
+    };
 
-      await axios.post("/api/inquiry", payload);
-      alert("문의가 등록되었습니다.");
-      setShowNewModal(false);
-      setNewForm({ title: "", category: "", customer: "", inquiryContent: "", file: null });
-      fetchInquiries();
+    console.log(">> 전송 payload:", payload); // 확인용 로그
+
+    await axios.post("/api/inquiry", payload); // ✅ 반드시 등록 요청해야 DB에 들어감
+
+    alert("문의가 등록되었습니다.");
+    setShowNewModal(false);
+    setNewForm({ title: "", category: "", customer: "", inquiryContent: "", file: null });
+    fetchInquiries();
+
     } catch (error) {
       console.error("문의 등록 실패:", error);
       alert("등록 중 오류가 발생했습니다.");

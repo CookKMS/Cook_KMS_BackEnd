@@ -17,7 +17,8 @@ export default function InquiryTable() {
 
   const [editingItem, setEditingItem] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
-  const deletingItem = inquiries.find((i) => i.id === confirmDeleteId);
+  const deletingItem = inquiries?.find((i) => i.id === confirmDeleteId); // ✅ 방어적 접근
+
 
   // ✅ 문의 목록 불러오기
   const fetchInquiries = async () => {
@@ -27,7 +28,7 @@ export default function InquiryTable() {
       if (searchTerm) params.keyword = searchTerm;
 
       const res = await axios.get('/api/admin/dashboard/inquiry', { params });
-      setInquiries(res.data.data);
+      setInquiries(res.data.items);
       setCurrentPage(1); // 검색 시 페이지 초기화
     } catch (err) {
       console.error('문의 목록 불러오기 실패:', err);
@@ -66,12 +67,12 @@ export default function InquiryTable() {
 
       await axios.post(`/api/inquiry/${editingItem.id}/comment`, { content });
 
-      await axios.put(`/api/my/inquiries/${editingItem.id}`, {
-        title: editingItem.title,
-        content: editingItem.content,
-        category: editingItem.category,
-        status,
-      });
+    //   await axios.put(`/api/inquiry/${editingItem.id}`, {
+    //     title: editingItem.title,
+    //     content: editingItem.content,
+    //     category_code: editingItem.category_code, // ✅ category → category_code
+    //     status, // ✅ 관리자용 API는 status 변경 가능
+    // });
 
       alert('답변 저장 완료');
       setEditingItem(null);
@@ -131,7 +132,7 @@ export default function InquiryTable() {
           {paginated.length > 0 ? (
             paginated.map((item) => (
               <tr key={item.id}>
-                <td>{item.category}</td>
+                <td>{item.category_name}</td> 
                 <td>{item.user_id}</td>
                 <td>{item.title}</td>
                 <td>

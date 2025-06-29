@@ -52,7 +52,7 @@ def get_paginated_inquiry_list(page, keyword="", category=None, per_page=5):
     if keyword:
         query = query.filter(Inquiry.title.ilike(f"%{keyword}%"))
     if category:
-        query = query.filter(Inquiry.category == category)
+        query = query.filter(Inquiry.category_code == category)  # ✅ 수정된 필드명
 
     pagination = query.order_by(Inquiry.created_at.desc()).paginate(
         page=page, per_page=per_page, error_out=False
@@ -66,20 +66,23 @@ def get_paginated_inquiry_list(page, keyword="", category=None, per_page=5):
             "id": i.id,
             "title": i.title,
             "username": i.user.username,
-            "category": i.category,
-            "category_name": category_map.get(i.category, ""),
+            "category_code": i.category_code,  # ✅ 올바른 필드
+            "category_name": category_map.get(i.category_code, ""),
             "status": i.status,
             "status_name": status_map.get(i.status, ""),
-            "created_at": i.created_at
+            "user_id": i.user_id,
+            "created_at": i.created_at.isoformat()
         }
         for i in pagination.items
     ]
+
     return jsonify({
         "items": data,
         "total": pagination.total,
         "pages": pagination.pages,
         "current_page": page
     }), 200
+
 
 # FAQ 목록 (카테고리명 포함)
 def get_paginated_faq_list(page, keyword="", category=None, per_page=5):

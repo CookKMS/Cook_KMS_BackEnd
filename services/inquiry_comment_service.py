@@ -6,12 +6,13 @@ from datetime import datetime
 def create_comment(inquiry_id, admin_id, data):
     content = data.get("content")
     if not content:
-        return {"message": "댓글 내용이 비어 있습니다."}, 400
+        return {"message": "내용이 없습니다."}, 400
 
     inquiry = Inquiry.query.get(inquiry_id)
     if not inquiry:
-        return {"message": "문의글을 찾을 수 없습니다."}, 404
+        return {"message": "문의글이 존재하지 않습니다."}, 404
 
+    # 🔹 댓글 등록
     comment = InquiryComment(
         inquiry_id=inquiry_id,
         admin_id=admin_id,
@@ -19,12 +20,13 @@ def create_comment(inquiry_id, admin_id, data):
     )
     db.session.add(comment)
 
-    # ✅ 상태: 답변 완료로 업데이트
-    inquiry.status = "02"  # answer_status = 02 (답변 완료)
-    inquiry.updated_at = datetime.utcnow()
+    # 🔹 상태 업데이트: 답변 완료
+    inquiry.status = "02"
 
     db.session.commit()
-    return {"message": "댓글이 등록되었습니다."}, 201
+
+    return {"message": "답변이 등록되었습니다.", "comment_id": comment.id}, 201
+
 
 def get_comments_by_inquiry(inquiry_id):
     comments = InquiryComment.query.filter_by(inquiry_id=inquiry_id)\

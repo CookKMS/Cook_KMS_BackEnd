@@ -41,6 +41,8 @@ def get_detail(inquiry_id):
 @custom_jwt_required
 @role_required("user", "employee")
 def update(inquiry_id):
+    print(">> g.user.id:", g.user.id) # 토큰 주입시 인증 여부 디버그
+    print(">> g.user.role:", g.user.role)
     user = g.user
     data = request.json
     result, status = update_inquiry(inquiry_id, user.id, data)
