@@ -36,7 +36,7 @@ export default function EmployeeKnowledgePage() {
   const filtered = knowledgeList.filter(item => {
     const matchCategory = selectedCategory === '전체' || item.category === selectedCategory;
     const matchSearch =
-      item.title.includes(searchTerm) || item.summary.includes(searchTerm);
+      item.title.includes(searchTerm) || item.content?.includes(searchTerm);
     return matchCategory && matchSearch;
   });
 
@@ -60,11 +60,11 @@ export default function EmployeeKnowledgePage() {
     try {
       const formData = new FormData();
       formData.append('title', title);
-      formData.append('category', category);
-      formData.append('summary', summary);
+      formData.append('category', category);     // ✅ DB 컬럼명에 맞춤
+      formData.append('content', summary);       // ✅ 서버가 받는 필드명으로 수정
       if (file) formData.append('file', file);
 
-      await axios.post('/api/knowledge/create', formData);
+      await axios.post('/api/knowledge/create', formData); // ✅ Content-Type 자동 처리됨
 
       alert('문서가 등록되었습니다.');
       setShowNewModal(false);
@@ -93,10 +93,7 @@ export default function EmployeeKnowledgePage() {
             }}
             onKeyDown={(e) => e.key === 'Enter' && setCurrentPage(1)}
           />
-          <button
-            className="btn"
-            onClick={() => setShowNewModal(true)}
-          >
+          <button className="btn" onClick={() => setShowNewModal(true)}>
             + 문서 추가
           </button>
         </div>
@@ -121,10 +118,10 @@ export default function EmployeeKnowledgePage() {
             <div key={item.id} className="knowledge-card" onClick={() => setSelectedItem(item)}>
               <div className="card-header">
                 <span className={`category-tag ${item.category}`}>{item.category}</span>
-                <time className="card-date">{item.created_at || item.date}</time>
+                <time className="card-date">{item.created_at?.slice(0, 10) || item.date}</time>
               </div>
               <h3>{item.title}</h3>
-              <p>{item.summary}</p>
+              <p>{item.content?.slice(0, 100) + '...'}</p>
             </div>
           ))}
         </div>

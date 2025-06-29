@@ -1,18 +1,18 @@
-from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import Blueprint, request, jsonify, g
+from utils.decorators import custom_jwt_required
 from services.my_knowledge_service import (
     get_my_knowledge,
     update_my_knowledge,
     delete_my_knowledge
 )
 
-my_knowledge_bp = Blueprint('my_knowledge_bp', __name__)
+my_knowledge_bp = Blueprint('my_knowledge_bp', __name__, url_prefix="/api/my/knowledge")
 
 # GET /api/my/knowledge
 @my_knowledge_bp.route('', methods=['GET'])
-@jwt_required()
+@custom_jwt_required
 def handle_get_my_knowledge():
-    user_id = get_jwt_identity()
+    user_id = g.user.id
     page = int(request.args.get('page', 1))
     size = int(request.args.get('size', 5))
 
@@ -24,9 +24,9 @@ def handle_get_my_knowledge():
 
 # PUT /api/my/knowledge/<int:knowledge_id>
 @my_knowledge_bp.route('/<int:knowledge_id>', methods=['PUT'])
-@jwt_required()
+@custom_jwt_required
 def handle_update_my_knowledge(knowledge_id):
-    user_id = get_jwt_identity()
+    user_id = g.user.id
     data = request.get_json()
     title = data.get('title')
     content = data.get('content')
@@ -39,9 +39,9 @@ def handle_update_my_knowledge(knowledge_id):
 
 # DELETE /api/my/knowledge/<int:knowledge_id>
 @my_knowledge_bp.route('/<int:knowledge_id>', methods=['DELETE'])
-@jwt_required()
+@custom_jwt_required
 def handle_delete_my_knowledge(knowledge_id):
-    user_id = get_jwt_identity()
+    user_id = g.user.id
     success = delete_my_knowledge(user_id, knowledge_id)
     if success:
         return jsonify({'message': '삭제 완료'})

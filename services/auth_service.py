@@ -25,8 +25,7 @@ def register_user(data):
     if role == "admin" and admin_key != Config.ADMIN_SIGNUP_KEY:
         return jsonify({"message": "관리자 인증키가 잘못되었습니다."}), 403
 
-    existing_user = User.query.filter_by(username=username).first()
-    if existing_user:
+    if User.query.filter_by(username=username).first():
         return jsonify({"message": "이미 존재하는 사용자입니다."}), 409
 
     hashed_pw = generate_password_hash(password)

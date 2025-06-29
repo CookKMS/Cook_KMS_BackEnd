@@ -1,13 +1,13 @@
-#공통 코드 조회 라우트 정의
+# 공통 코드 조회 라우트 정의
 
 from flask import Blueprint, request, jsonify
 from models.common import Code
-from utils.decorators import jwt_required
+from utils.decorators import custom_jwt_required  # ✅ 수정된 import
 
 common_bp = Blueprint("common_bp", __name__, url_prefix="/api/common")
 
 @common_bp.route("/codes", methods=["GET"])
-@jwt_required
+@custom_jwt_required  # ✅ 데코레이터 수정
 def get_common_codes():
     code_type = request.args.get("type")
     if not code_type:

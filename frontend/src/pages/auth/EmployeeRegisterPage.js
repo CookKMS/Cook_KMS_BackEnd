@@ -73,6 +73,7 @@ function EmployeeRegisterPage() {
         username,
         password,
         role: 'employee',
+        employee_number: employeeCode,
       });
 
       if (res.status === 200) {
