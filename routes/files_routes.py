@@ -8,7 +8,7 @@ from services.files_service import (
 )
 from utils.decorators import custom_jwt_required, role_required
 
-file_bp = Blueprint("file_bp", __name__)
+file_bp = Blueprint("file_bp", __name__, url_prefix="/api/file")
 
 # 파일 업로드 - 인증 필요, 역할은 board_code에 따라 내부에서 판별
 @file_bp.route("/upload", methods=["POST"])
@@ -31,7 +31,7 @@ def delete(file_id):
 def replace(file_id):
     return replace_file_by_id(file_id, request)
 
-# 파일 다운로드- 인증된 사용자 누구나 가능
+# 파일 다운로드 - 인증된 사용자 누구나 가능
 @file_bp.route("/download/<int:file_id>", methods=["GET"])
 @custom_jwt_required
 @role_required("user", "employee", "admin")

@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // 사용자용 페이지
 import HomePage from './pages/HomePage';
-import Knowledge from './pages/Knowledge';
+
 import FAQPage from './pages/FAQPage';
 import InquiryPage from './pages/InquiryPage';
 import MyPage from './pages/MyPage';
@@ -31,7 +31,7 @@ function App() {
       <Routes>
         {/* 사용자용 페이지 */}
         <Route path="/" element={<HomePage />} />
-        <Route path="/knowledge" element={<Knowledge />} />
+       
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/inquiry" element={<InquiryPage />} />
         <Route path="/mypage" element={<MyPage />} />

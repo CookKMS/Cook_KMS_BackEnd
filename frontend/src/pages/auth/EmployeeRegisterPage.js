@@ -73,10 +73,10 @@ function EmployeeRegisterPage() {
         username,
         password,
         role: 'employee',
-        employee_number: employeeCode
+        employee_number: employeeCode,
       });
 
-      if (res.status === 201) {
+      if (res.status === 200) {
         alert(res.data.message || '회원가입이 완료되었습니다.');
         navigate('/employee-login');
       }

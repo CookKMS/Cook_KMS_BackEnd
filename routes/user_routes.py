@@ -1,9 +1,9 @@
-#사용자 정보 조회 라우트 정의
+# 사용자 정보 조회 라우트 정의
 from flask import Blueprint, jsonify
 from utils.decorators import custom_jwt_required, role_required
 from models.user import User
 
-user_bp = Blueprint("user_bp", __name__)
+user_bp = Blueprint("user_bp", __name__, url_prefix="/api/users")
 
 # 사용자 전체 목록 조회 (관리자만 가능)
 @user_bp.route("/", methods=["GET"])

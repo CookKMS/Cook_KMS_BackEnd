@@ -2,16 +2,13 @@ import React, { useEffect, useState } from 'react';
 import axios from '../../../utils/axiosInstance';
 import '../../../styles/Admin/FaqTable.css';
 
-// 카테고리 코드 매핑
+const categories = ['전체', '설치,구성', '접근통제', '계정관리', '기타'];
 const categoryCodeMap = {
   '설치,구성': 'SETUP',
   '접근통제': 'SECURITY',
   '계정관리': 'ACCOUNT',
   '기타': 'ETC'
 };
-
-// 조회용 필터에는 '전체' 포함
-const filterCategories = ['전체', ...Object.keys(categoryCodeMap)];
 
 export default function FaqTable() {
   const [faqs, setFaqs] = useState([]);
@@ -24,7 +21,7 @@ export default function FaqTable() {
   const [currentFaq, setCurrentFaq] = useState(null);
   const [file, setFile] = useState(null);
 
-  // ✅ FAQ 목록 불러오기
+  // ✅ FAQ 목록 불러오기 (Flask 연동)
   const fetchFaqs = async () => {
     try {
       let url = '/api/faq';
@@ -56,23 +53,25 @@ export default function FaqTable() {
     e.preventDefault();
     const form = e.target;
 
-    const formData = new FormData();
-    formData.append('title', form.title.value);
-    formData.append('content', form.content.value);
-    formData.append('category', form.category.value);  // 직접 코드값 사용
-    if (file) {
-      formData.append('file', file);
-    }
+    const newFaq = {
+      title: form.question.value,
+      content: form.answer.value,
+      category: categoryCodeMap[form.category.value] || form.category.value
+    };
 
     try {
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        await axios.post('/api/file/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      }
+
       if (modalType === 'add') {
-        await axios.post('/api/faq/create', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        await axios.post('/api/faq/create', newFaq);
       } else {
-        await axios.put(`/api/faq/${currentFaq.id}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        await axios.put(`/api/faq/${currentFaq.id}`, newFaq);
       }
 
       alert('저장되었습니다.');
@@ -104,7 +103,7 @@ export default function FaqTable() {
         <h2>FAQ 관리</h2>
         <div className="filter-section">
           <select value={filter} onChange={e => setFilter(e.target.value)}>
-            {filterCategories.map(category => <option key={category}>{category}</option>)}
+            {categories.map(category => <option key={category}>{category}</option>)}
           </select>
           <input
             type="text"
@@ -159,14 +158,14 @@ export default function FaqTable() {
             <div className="modal-row">
               <label>제목</label>
               <div className="input-area">
-                <input name="title" defaultValue={currentFaq?.title || ''} required />
+                <input name="question" defaultValue={currentFaq?.title || ''} required />
               </div>
             </div>
 
             <div className="modal-row">
               <label>내용</label>
               <div className="input-area">
-                <textarea name="content" defaultValue={currentFaq?.content || ''} required />
+                <textarea name="answer" defaultValue={currentFaq?.content || ''} required />
               </div>
             </div>
 
@@ -175,9 +174,7 @@ export default function FaqTable() {
               <div className="input-area">
                 <select name="category" defaultValue={currentFaq?.category || ''} required>
                   <option value="">카테고리 선택</option>
-                  {Object.entries(categoryCodeMap).map(([label, code]) => (
-                    <option key={code} value={code}>{label}</option>
-                  ))}
+                  {categories.slice(1).map(c => <option key={c}>{c}</option>)}
                 </select>
               </div>
             </div>

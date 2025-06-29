@@ -1,6 +1,6 @@
-from flask import Blueprint, request, jsonify
-from flask_jwt_extended import  get_jwt_identity
-from utils.decorators import role_required, custom_jwt_required
+
+from flask import Blueprint, request, jsonify, g
+from utils.decorators import custom_jwt_required, role_required
 from services.inquiry_comment_service import (
     create_comment,
     get_comments_by_inquiry,
@@ -10,15 +10,14 @@ from services.inquiry_comment_service import (
 
 inquiry_comment_bp = Blueprint("inquiry_comment_bp", __name__, url_prefix="/api/inquiry")
 
-
 # 댓글(답변) 등록 – 관리자만
 @inquiry_comment_bp.route("/<int:inquiry_id>/comment", methods=["POST"])
 @custom_jwt_required
 @role_required("admin")
 def add_comment(inquiry_id):
-    user = get_jwt_identity()
+    user = g.user
     data = request.json
-    result, status = create_comment(inquiry_id, user["id"], data)
+    result, status = create_comment(inquiry_id, user.id, data)
     return jsonify(result), status
 
 # 댓글 목록 조회 – 전체 사용자 가능

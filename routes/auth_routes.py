@@ -1,9 +1,9 @@
-#사용자 인증 라우트 정의
+# 사용자 인증 라우트 정의
 from flask import Blueprint, request, jsonify, g
 from services.auth_service import register_user, login_user
 from utils.decorators import custom_jwt_required, role_required
 
-auth_bp = Blueprint("auth_bp", __name__)
+auth_bp = Blueprint("auth_bp", __name__, url_prefix="/api/auth")
 
 # 회원가입
 @auth_bp.route("/register", methods=["POST"])
@@ -11,12 +11,11 @@ def register():
     data = request.json
     return register_user(data)
 
-#로그인
+# 로그인
 @auth_bp.route("/login", methods=["POST"])
 def login():
     data = request.json
     return login_user(data)
-
 
 # 내 정보 조회
 @auth_bp.route("/me", methods=["GET"])

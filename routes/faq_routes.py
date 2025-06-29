@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app
 from utils.decorators import role_required
-from utils.decorators import custom_jwt_required  # ✅ 이렇게 되어 있어야 함
+from utils.decorators import jwt_required  # ✅ 이렇게 되어 있어야 함
 
 from services.faq_service import (
     create_faq, get_all_faqs, get_faq_detail,
@@ -12,7 +12,7 @@ from werkzeug.utils import secure_filename
 faq_bp = Blueprint("faq_bp", __name__, url_prefix="/api/faq")
 
 @faq_bp.route("/create", methods=["POST"])
-@custom_jwt_required
+@jwt_required
 @role_required("admin")
 def create_faq_route():
     # ✅ multipart/form-data 처리
@@ -44,28 +44,28 @@ def create_faq_route():
     return jsonify(result), status
 
 @faq_bp.route("/", methods=["GET"])
-@custom_jwt_required
+@jwt_required
 @role_required("user", "employee", "admin")
 def get_all_faqs_route():
     result, status = get_all_faqs()
     return jsonify(result), status
 
 @faq_bp.route("/category/<string:category>", methods=["GET"])
-@custom_jwt_required
+@jwt_required
 @role_required("user", "employee", "admin")
 def get_faqs_by_category_route(category):
     result, status = get_faqs_by_category(category)
     return jsonify(result), status
 
 @faq_bp.route("/<int:faq_id>", methods=["GET"])
-@custom_jwt_required
+@jwt_required
 @role_required("user", "employee", "admin")
 def get_faq_detail_route(faq_id):
     result, status = get_faq_detail(faq_id)
     return jsonify(result), status
 
 @faq_bp.route("/<int:faq_id>", methods=["PUT"])
-@custom_jwt_required
+@jwt_required
 @role_required("admin")
 def update_faq_route(faq_id):
     data = request.json
@@ -73,7 +73,7 @@ def update_faq_route(faq_id):
     return jsonify(result), status
 
 @faq_bp.route("/<int:faq_id>", methods=["DELETE"])
-@custom_jwt_required
+@jwt_required
 @role_required("admin")
 def delete_faq_route(faq_id):
     result, status = delete_faq(faq_id)

@@ -1,13 +1,13 @@
+# services/knowledge_service.py
 from models.knowledge import Knowledge
 from db_init import db
 from datetime import datetime
 from flask import jsonify
 
-
 def create_knowledge_entry(author_id, data):
     title = data.get("title")
     content = data.get("content")
-    category = data.get("category")
+    category = data.get("category")  # ✅ 수정: category_code → category
     file_path = data.get("file_path")
 
     if not title or not content or not category:
@@ -17,7 +17,7 @@ def create_knowledge_entry(author_id, data):
         author_id=author_id,
         title=title,
         content=content,
-        category=category,
+        category=category,  # ✅ 수정 반영
         file_path=file_path
     )
     db.session.add(knowledge)
@@ -34,7 +34,6 @@ def get_knowledge_detail(knowledge_id):
     entry = Knowledge.query.get(knowledge_id)
     if not entry:
         return {"message": "지식을 찾을 수 없습니다."}, 404
-
     return jsonify(_serialize(entry)), 200
 
 def update_knowledge_entry(knowledge_id, user_id, data):
@@ -46,7 +45,7 @@ def update_knowledge_entry(knowledge_id, user_id, data):
 
     entry.title = data.get("title", entry.title)
     entry.content = data.get("content", entry.content)
-    entry.category = data.get("category", entry.category)
+    entry.category = data.get("category", entry.category)  # ✅ 수정 반영
     entry.file_path = data.get("file_path", entry.file_path)
     entry.updated_at = datetime.utcnow()
 
@@ -58,7 +57,6 @@ def delete_knowledge_entry(knowledge_id, user_id):
     if not entry:
         return {"message": "지식을 찾을 수 없습니다."}, 404
 
-    # 관리자 or 작성자만 삭제 가능
     if entry.author_id != user_id:
         return {"message": "본인만 삭제할 수 있습니다."}, 403
 
@@ -72,7 +70,7 @@ def _serialize(entry):
         "author_id": entry.author_id,
         "title": entry.title,
         "content": entry.content,
-        "category": entry.category,
+        "category": entry.category,  # ✅ 필드명 수정
         "file_path": entry.file_path,
         "created_at": entry.created_at,
         "updated_at": entry.updated_at

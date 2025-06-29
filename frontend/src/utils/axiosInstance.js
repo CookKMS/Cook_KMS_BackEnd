@@ -2,10 +2,8 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_URL, // ✅ .env에서 가져옴
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  baseURL: process.env.REACT_APP_API_URL,
+  
 });
 
 // ✅ 요청 시 토큰 자동 첨부
