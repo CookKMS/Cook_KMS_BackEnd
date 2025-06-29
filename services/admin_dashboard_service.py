@@ -32,8 +32,8 @@ def get_paginated_knowledge_list(page, per_page=5):
         {
             "id": k.id,
             "title": k.title,
-            "category_code": k.category_code,
-            "category_name": category_map.get(k.category_code, ""),
+            "category": k.category,
+            "category_name": category_map.get(k.category, ""),
             "updated_at": k.updated_at
         }
         for k in pagination.items
@@ -52,7 +52,7 @@ def get_paginated_inquiry_list(page, keyword="", category=None, per_page=5):
     if keyword:
         query = query.filter(Inquiry.title.ilike(f"%{keyword}%"))
     if category:
-        query = query.filter(Inquiry.category_code == category)
+        query = query.filter(Inquiry.category == category)
 
     pagination = query.order_by(Inquiry.created_at.desc()).paginate(
         page=page, per_page=per_page, error_out=False
@@ -66,8 +66,8 @@ def get_paginated_inquiry_list(page, keyword="", category=None, per_page=5):
             "id": i.id,
             "title": i.title,
             "username": i.user.username,
-            "category_code": i.category_code,
-            "category_name": category_map.get(i.category_code, ""),
+            "category": i.category,
+            "category_name": category_map.get(i.category, ""),
             "status": i.status,
             "status_name": status_map.get(i.status, ""),
             "created_at": i.created_at
@@ -88,7 +88,7 @@ def get_paginated_faq_list(page, keyword="", category=None, per_page=5):
     if keyword:
         query = query.filter(Faq.title.ilike(f"%{keyword}%"))
     if category:
-        query = query.filter(Faq.category_code == category)
+        query = query.filter(Faq.category == category)
 
     pagination = query.order_by(Faq.created_at.desc()).paginate(
         page=page, per_page=per_page, error_out=False
@@ -100,8 +100,8 @@ def get_paginated_faq_list(page, keyword="", category=None, per_page=5):
         {
             "id": f.id,
             "title": f.title,
-            "category_code": f.category_code,
-            "category_name": category_map.get(f.category_code, "")
+            "category": f.category,
+            "category_name": category_map.get(f.category, "")
         }
         for f in pagination.items
     ]

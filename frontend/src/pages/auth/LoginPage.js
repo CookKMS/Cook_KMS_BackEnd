@@ -36,6 +36,8 @@ function UserLoginPage() {
       // 📌 토큰 저장
       localStorage.setItem('token', access_token);
 
+      localStorage.setItem('isLoggedIn', 'true'); // ✅ 유저 로그인 시 isLoggedIn 상태 저장
+
       // 📌 메인 페이지 이동
       navigate('/');
     } catch (error) {
@@ -52,6 +54,9 @@ function UserLoginPage() {
 
   return (
     <div className="login-container">
+      <Link to="/" className="home-link">
+        <h1>Home</h1>
+      </Link>
       <div className="login-tabs">
         <button className="active">사용자 로그인</button>
         <Link to="/admin-login" className="tab">관리자 로그인</Link>

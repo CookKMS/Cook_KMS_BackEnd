@@ -56,6 +56,9 @@ function EmployeeLoginPage() {
 
   return (
     <div className="employee-login-container">
+      <Link to="/" className="home-link">
+        <h1>Home</h1>
+      </Link>
       <div className="employee-login-tabs">
         <Link to="/login" className="tab">사용자 로그인</Link>
         <Link to="/admin-login" className="tab">관리자 로그인</Link>

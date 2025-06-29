@@ -28,16 +28,18 @@ export default function InquiryTable() {
 
       const res = await axios.get('/api/admin/dashboard/inquiry', { params });
       setInquiries(res.data.data);
+      setCurrentPage(1); // 검색 시 페이지 초기화
     } catch (err) {
       console.error('문의 목록 불러오기 실패:', err);
     }
   };
 
+  // ✅ 자동 검색 및 필터링 반응
   useEffect(() => {
     fetchInquiries();
-  }, [filterStatus]);
+  }, [filterStatus, searchTerm]);
 
-  const filtered = inquiries; // 서버에서 필터링된 결과 사용
+  const filtered = inquiries;
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -56,7 +58,7 @@ export default function InquiryTable() {
 
       if (file) {
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append('file', file);
         await axios.post('/api/file/upload', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
@@ -97,7 +99,7 @@ export default function InquiryTable() {
     <div className="inquiry-table-wrapper">
       {/* 🔹 상단 필터 및 검색 */}
       <div className="table-header">
-        <h2>🛠️ 제조사 문의 관리</h2>
+        <h2>고객사 문의 관리</h2>
         <div className="table-controls">
           <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
             {['전체', '답변 대기', '답변 완료'].map((status) => (
@@ -110,7 +112,6 @@ export default function InquiryTable() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button onClick={fetchInquiries}>🔍 검색</button>
         </div>
       </div>
 
@@ -127,27 +128,41 @@ export default function InquiryTable() {
           </tr>
         </thead>
         <tbody>
-          {paginated.map((item) => (
-            <tr key={item.id}>
-              <td>{item.category}</td>
-              <td>{item.user_id}</td>
-              <td>{item.title}</td>
-              <td>
-                <span className={`badge ${item.status === '02' ? 'badge-done' : 'badge-pending'}`}>
-                  {item.status === '02' ? '답변 완료' : '답변 대기'}
-                </span>
-              </td>
-              <td>{item.created_at?.slice(0, 10)}</td>
-              <td>
-                <button className="view" onClick={() => setEditingItem(item)}>
-                  {item.status === '02' ? '답변 보기' : '답변 작성'}
-                </button>
-                <button className="delete" onClick={() => setConfirmDeleteId(item.id)}>🗑️</button>
+          {paginated.length > 0 ? (
+            paginated.map((item) => (
+              <tr key={item.id}>
+                <td>{item.category}</td>
+                <td>{item.user_id}</td>
+                <td>{item.title}</td>
+                <td>
+                  <span className={`badge ${item.status === '02' ? 'badge-done' : 'badge-pending'}`}>
+                    {item.status === '02' ? '답변 완료' : '답변 대기'}
+                  </span>
+                </td>
+                <td>{item.created_at?.slice(0, 10)}</td>
+                <td>
+                  <button className="view" onClick={() => setEditingItem(item)}>
+                    {item.status === '02' ? '답변 보기' : '답변 작성'}
+                  </button>
+                  <button className="delete" onClick={() => setConfirmDeleteId(item.id)}>🗑️</button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="6" style={{
+                textAlign: 'center',
+                padding: '12px 16px',
+                fontSize: '1rem',
+                color: '#888'
+              }}>
+                등록된 문의가 없습니다.
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
+
 
       {/* 🔹 페이지네이션 */}
       <div className="pagination">
@@ -198,7 +213,7 @@ export default function InquiryTable() {
 
             <div className="modal-actions">
               <button type="button" onClick={() => setEditingItem(null)}>취소</button>
-              <button type="submit">저장</button>
+              <button type="submit" className="primary">저장</button>
             </div>
           </form>
         </div>
@@ -211,7 +226,7 @@ export default function InquiryTable() {
             <h3>삭제 확인</h3>
             <p>정말로 <strong>{deletingItem?.title}</strong> 문의를 삭제하시겠습니까?</p>
             <div className="modal-actions">
-              <button onClick={() => setConfirmDeleteId(null)}>취소</button>
+              <button className="cancel" onClick={() => setConfirmDeleteId(null)}>취소</button>
               <button className="danger" onClick={handleDelete}>삭제</button>
             </div>
           </div>

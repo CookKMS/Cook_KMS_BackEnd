@@ -5,7 +5,7 @@ import '../styles/KnowledgeModal.css';
 // 지식 상세 모달 컴포넌트
 function KnowledgeDetailModal({ item, onClose }) {
   const [newComment, setNewComment] = useState(''); // 새 댓글 입력값
-  const [comments, setComments] = useState(item.comments); // 댓글 목록 상태
+  const [comments, setComments] = useState(item.comments || []); // 렌더링 중단 문제를 방지하기 위해 초기값 설정
 
   // 댓글 제출 핸들러
   const handleCommentSubmit = () => {

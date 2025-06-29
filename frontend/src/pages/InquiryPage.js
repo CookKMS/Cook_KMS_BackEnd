@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "../utils/axiosInstance";
 import Header from "../components/Header";
-import "../styles/InquiryPage.css";
+// import "../styles/InquiryPage.css"; // ❌ 파일이 없으면 에러 발생 → 주석 처리하거나 파일 생성 필요
 
 const categories = ["전체", "새 기능", "수정", "버그", "문의", "장애", "긴급 지원"];
 
@@ -13,7 +13,6 @@ export default function InquiryPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const inquiriesPerPage = 5;
 
-  // ✅ 전체 문의 목록 불러오기
   const fetchAllInquiries = async () => {
     try {
       const res = await axios.get("/api/inquiry");

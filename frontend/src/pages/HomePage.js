@@ -17,7 +17,7 @@ function HomePage() {
   const handleStartClick = () => {
     // ✅ 추후 Flask와 연동된 지식 검색 페이지로 이동
     // 예: GET /api/knowledge 호출 포함
-    navigate('/Knowledge');
+    navigate('/my-inquiries');
   };
 
   return (
@@ -29,11 +29,11 @@ function HomePage() {
       <div className="home-container">
         <div className="home-content">
           {/* 🔸 홈페이지 메인 타이틀 */}
-          <h1 className="home-title">쉽고 빠른 지식관리 시스템</h1>
+          <h1 className="home-title">쉽고 빠른 고객사 문의 시스템</h1>
 
           {/* 🔸 부제 설명 */}
           <p className="home-description">
-            모든 문의와 답변, 지식 자료를 한 곳에서 관리하세요.
+            모든 문의와 답변 한 곳에서 관리하세요.
           </p>
 
           {/* 🔸 시작하기 버튼 */}
@@ -41,7 +41,7 @@ function HomePage() {
             className="start-button"
             onClick={handleStartClick}
           >
-            지식 검색 시작하기
+            고객사 문의 시작하기
           </button>
         </div>
       </div>
