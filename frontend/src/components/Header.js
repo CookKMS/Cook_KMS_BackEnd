@@ -1,13 +1,23 @@
 // src/components/Header.js
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import '../styles/Header.css'; // ✅ 헤더 스타일 경로
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import '../styles/Header.css';
 
 function Header() {
   const location = useLocation();
+  const navigate = useNavigate();
 
-  // ✅ 상단 메뉴 항목 정의
+  // ✅ 로그인 상태 확인
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+  // ✅ 로그아웃 처리 함수
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('username');
+    navigate('/login');
+  };
+
   const menuItems = [
     { path: '/', label: 'Home' },
     { path: '/my-inquiries', label: '제조사 문의' },
@@ -17,7 +27,6 @@ function Header() {
 
   return (
     <header className="main-header">
-      {/* 🔹 왼쪽: 로고 + 메뉴 */}
       <div className="left-section">
         <div className="logo">지식관리</div>
         <nav className="nav-menu">
@@ -33,14 +42,18 @@ function Header() {
         </nav>
       </div>
 
-      {/* 🔹 오른쪽: 로그인 버튼 */}
+      {/* ✅ 로그인 상태에 따라 버튼 변경 */}
       <div className="right-section">
-        <Link
-          to="/login"
-          className={`nav-link ${location.pathname === '/login' ? 'active' : ''}`}
-        >
-          로그인
-        </Link>
+        {isLoggedIn ? (
+          <button className="nav-link" onClick={handleLogout}>로그아웃</button>
+        ) : (
+          <Link
+            to="/login"
+            className={`nav-link ${location.pathname === '/login' ? 'active' : ''}`}
+          >
+            로그인
+          </Link>
+        )}
       </div>
     </header>
   );
