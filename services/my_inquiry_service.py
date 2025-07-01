@@ -14,7 +14,14 @@ def load_code_map(code_type):
     return {code.code_key: code.code_value for code in codes}
 
 # 🔧 댓글 포함 직렬화 함수
+# my_inquiry_service.py 내 _serialize 함수 수정
 def _serialize(inquiry):
+    # 🔹 가장 최신 댓글의 내용을 answer로 추가
+    latest_answer = (
+        sorted(inquiry.comments, key=lambda c: c.created_at)[-1].content
+        if inquiry.comments else None
+    )
+
     return {
         "id": inquiry.id,
         "title": inquiry.title,
@@ -25,9 +32,8 @@ def _serialize(inquiry):
         "user_id": inquiry.user_id,
         "created_at": inquiry.created_at.isoformat(),
         "updated_at": inquiry.updated_at.isoformat() if inquiry.updated_at else None,
-
-        # ✅ 댓글 포함
-        "comments": [
+        "answer": latest_answer,  # ✅ 이 필드를 반드시 포함시켜야 함
+        "comments": [  # ✅ 기존 구조 유지
             {
                 "comment_id": c.id,
                 "admin_id": c.admin_id,
@@ -37,6 +43,7 @@ def _serialize(inquiry):
             for c in inquiry.comments
         ]
     }
+
 
 # 내 문의 목록 조회 (ADMIN 차단 + 코드명 매핑)
 def get_my_inquiries(user_id, page, size):

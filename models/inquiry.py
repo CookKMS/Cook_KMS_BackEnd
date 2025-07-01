@@ -1,5 +1,6 @@
 from db_init import db
 from datetime import datetime
+from models.inquiry_comment import InquiryComment
 
 class Inquiry(db.Model):
     __tablename__ = "inquiries"

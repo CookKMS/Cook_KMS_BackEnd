@@ -1,7 +1,5 @@
-// src/pages/employee/EmployeeInquiriesPage.js
-
 import React, { useEffect, useState } from "react";
-import axios from "../../utils/axiosInstance"; // ✅ axiosInstance 적용
+import axios from "../../utils/axiosInstance";
 import EmployeeHeader from "./EmployeeHeader";
 import "../../styles/MyInquiriesPage.css";
 
@@ -31,7 +29,12 @@ export default function EmployeeInquiriesPage() {
     const fetchInquiries = async () => {
       try {
         const res = await axios.get("/api/my/inquiries");
-        setInquiries(res.data.data);
+        const list = Array.isArray(res.data.inquiries)
+          ? res.data.inquiries
+          : Array.isArray(res.data)
+            ? res.data
+            : [];
+        setInquiries(list);
       } catch (err) {
         console.error("내 문의 내역 불러오기 실패:", err);
       }
@@ -40,14 +43,16 @@ export default function EmployeeInquiriesPage() {
     fetchInquiries();
   }, []);
 
-  const filtered = inquiries.filter(item => {
-    const categoryMatch = filter === "전체" || item.category === filter;
-    const searchMatch =
-      item.title.includes(search) ||
-      item.content.includes(search) ||
-      (item.answer || "").includes(search);
-    return categoryMatch && searchMatch;
-  });
+  const filtered = Array.isArray(inquiries)
+    ? inquiries.filter(item => {
+        const categoryMatch = filter === "전체" || (item.category || "") === filter;
+        const searchMatch =
+          (item.title || "").includes(search) ||
+          (item.content || "").includes(search) ||
+          (item.answer || "").includes(search);
+        return categoryMatch && searchMatch;
+      })
+    : [];
 
   const totalPages = Math.ceil(filtered.length / inquiriesPerPage);
   const paged = filtered.slice(
@@ -68,7 +73,7 @@ export default function EmployeeInquiriesPage() {
     }
   };
 
-  // ✅ 문의 등록
+  // ✅ 수정된 문의 등록 함수 (415 에러 해결)
   const submitNewInquiry = async (e) => {
     e.preventDefault();
     const { title, category, customer, inquiryContent, file } = newForm;
@@ -86,18 +91,18 @@ export default function EmployeeInquiriesPage() {
       formData.append("content", inquiryContent);
       if (file) formData.append("file", file);
 
+      // ✅ headers 제거 (Axios가 자동으로 Content-Type 설정)
       await axios.post("/api/inquiry", formData);
 
       alert("문의가 등록되었습니다.");
       setShowNewModal(false);
-      window.location.reload(); // 새로고침
+      window.location.reload();
     } catch (err) {
       console.error("문의 등록 실패:", err);
       alert("문의 등록 중 오류가 발생했습니다.");
     }
   };
 
-  // ✅ 문의 삭제
   const confirmDelete = async () => {
     try {
       await axios.delete(`/api/inquiry/${confirmDeleteId}`);
@@ -190,13 +195,13 @@ export default function EmployeeInquiriesPage() {
                   <section className="card-details" onClick={(e) => e.stopPropagation()}>
                     <div className="inquiry-content-section">
                       <strong>문의 내용</strong>
-                      <p>{item.content}</p>
+                      <p>{String(item.content || "")}</p>
                       <time>{item.created_at}</time>
                     </div>
                     {item.answer ? (
                       <div className="answer-section">
                         <strong>답변</strong>
-                        <p>{item.answer}</p>
+                        <p>{String(item.answer || "")}</p>
                       </div>
                     ) : (
                       <div className="pending-answer-notice">
@@ -231,6 +236,7 @@ export default function EmployeeInquiriesPage() {
         </section>
       </main>
 
+      {/* ✅ 문의 작성 모달 */}
       {showNewModal && (
         <div className="modal-backdrop" onClick={() => setShowNewModal(false)}>
           <form
@@ -271,6 +277,7 @@ export default function EmployeeInquiriesPage() {
         </div>
       )}
 
+      {/* ✅ 삭제 확인 모달 */}
       {confirmDeleteId && (
         <div className="modal-backdrop" onClick={() => setConfirmDeleteId(null)}>
           <div className="modal confirm-delete-modal" onClick={(e) => e.stopPropagation()}>

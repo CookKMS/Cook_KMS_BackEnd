@@ -1,7 +1,7 @@
 // src/pages/employee/EmployeeFaqPage.js
 
 import React, { useState, useEffect } from "react";
-import axios from "../../utils/axiosInstance"; // ✅ axiosInstance import
+import axios from "../../utils/axiosInstance";
 import EmployeeHeader from "./EmployeeHeader";
 import "../../styles/FAQPage.css";
 
@@ -15,12 +15,11 @@ export default function EmployeeFaqPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // ✅ FAQ 목록 불러오기 (axiosInstance + /api/faq)
   useEffect(() => {
     const fetchFaqs = async () => {
       try {
         const res = await axios.get("/api/faq");
-        setFaqList(res.data);
+        setFaqList(res.data || []);
       } catch (err) {
         console.error("FAQ 불러오기 실패:", err);
         alert("FAQ 데이터를 불러오는 데 실패했습니다.");
@@ -32,10 +31,13 @@ export default function EmployeeFaqPage() {
 
   const filteredFaqs = faqList.filter((faq) => {
     const matchCategory = selectedCategory === "전체" || faq.category === selectedCategory;
+    const question = typeof faq.question === "string" ? faq.question : "";
+    const answer = typeof faq.answer === "string" ? faq.answer : "";
+
     const matchSearch =
-      faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (typeof faq.answer === "string" &&
-        faq.answer.toLowerCase().includes(searchTerm.toLowerCase()));
+      question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      answer.toLowerCase().includes(searchTerm.toLowerCase());
+
     return matchCategory && matchSearch;
   });
 
@@ -102,7 +104,7 @@ export default function EmployeeFaqPage() {
                     aria-controls={`faq-answer-${globalIndex}`}
                     id={`faq-question-${globalIndex}`}
                   >
-                    [{faq.category}] {faq.question}
+                    [{faq.category}] {String(faq.question || "질문 없음")}
                     <span className="faq-toggle-icon" aria-hidden="true">
                       {expandedIndex === globalIndex ? "▲" : "▼"}
                     </span>
@@ -115,7 +117,7 @@ export default function EmployeeFaqPage() {
                       role="region"
                       aria-labelledby={`faq-question-${globalIndex}`}
                     >
-                      <p>{faq.answer}</p>
+                      <p>{String(faq.answer || "답변 없음")}</p>
                     </div>
                   )}
                 </article>

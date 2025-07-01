@@ -11,10 +11,30 @@ inquiry_bp = Blueprint("inquiry_bp", __name__, url_prefix="/api/inquiry")
 @custom_jwt_required
 @role_required("user", "employee")
 def register_inquiry():
-    user = g.user
-    data = request.json
-    result, status = create_inquiry(user.id, data)
+    user_id = g.user.id
+
+    # ✅ FormData에서 값 추출
+    title = request.form.get("title")
+    content = request.form.get("content")
+    category_code = request.form.get("category")
+    customer = request.form.get("customer")  # ❗ 실제 DB에는 없지만 프론트에선 존재
+    file = request.files.get("file")
+
+    # ✅ 파일 저장 처리
+    file_path = None
+    if file:
+        from werkzeug.utils import secure_filename
+        import os
+        filename = secure_filename(file.filename)
+        upload_dir = os.path.join("uploads", "inquiries")
+        os.makedirs(upload_dir, exist_ok=True)
+        file_path = os.path.join(upload_dir, filename)
+        file.save(file_path)
+
+    # ✅ 서비스 함수 호출
+    result, status = create_inquiry(user_id, title, content, category_code, file_path)
     return jsonify(result), status
+
 
 @inquiry_bp.route("", methods=["GET"])
 @custom_jwt_required

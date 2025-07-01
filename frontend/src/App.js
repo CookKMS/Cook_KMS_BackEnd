@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // 사용자용 페이지
 import HomePage from './pages/HomePage';
-
 import FAQPage from './pages/FAQPage';
 import MyInquiriesPage from './pages/MyInquiriesPage';
 import MyPage from './pages/MyPage';

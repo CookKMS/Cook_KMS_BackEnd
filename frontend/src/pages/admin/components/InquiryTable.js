@@ -98,9 +98,8 @@ export default function InquiryTable() {
 
   return (
     <div className="inquiry-table-wrapper">
-      {/* 🔹 상단 필터 및 검색 */}
       <div className="table-header">
-        <h2>고객사 문의 관리</h2>
+        <h2>🛠️ 제조사 문의 관리</h2>
         <div className="table-controls">
           <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
             {['전체', '답변 대기', '답변 완료'].map((status) => (
@@ -113,14 +112,14 @@ export default function InquiryTable() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+          <button onClick={fetchInquiries}>🔍 검색</button>
         </div>
       </div>
 
-      {/* 🔹 문의 테이블 */}
       <table className="inquiry-table">
         <thead>
           <tr>
-            <th>카테고리</th>
+      
             <th>고객사</th>
             <th>제목</th>
             <th>상태</th>
@@ -129,43 +128,27 @@ export default function InquiryTable() {
           </tr>
         </thead>
         <tbody>
-          {paginated.length > 0 ? (
-            paginated.map((item) => (
-              <tr key={item.id}>
-                <td>{item.category_name}</td> 
-                <td>{item.user_id}</td>
-                <td>{item.title}</td>
-                <td>
-                  <span className={`badge ${item.status === '02' ? 'badge-done' : 'badge-pending'}`}>
-                    {item.status === '02' ? '답변 완료' : '답변 대기'}
-                  </span>
-                </td>
-                <td>{item.created_at?.slice(0, 10)}</td>
-                <td>
-                  <button className="view" onClick={() => setEditingItem(item)}>
-                    {item.status === '02' ? '답변 보기' : '답변 작성'}
-                  </button>
-                  <button className="delete" onClick={() => setConfirmDeleteId(item.id)}>🗑️</button>
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="6" style={{
-                textAlign: 'center',
-                padding: '12px 16px',
-                fontSize: '1rem',
-                color: '#888'
-              }}>
-                등록된 문의가 없습니다.
+          {paginated.map((item) => (
+            <tr key={item.id}>
+              <td>{item.user_id}</td>
+              <td>{item.title}</td>
+              <td>
+                <span className={`badge ${item.status === '02' ? 'badge-done' : 'badge-pending'}`}>
+                  {item.status === '02' ? '답변 완료' : '답변 대기'}
+                </span>
+              </td>
+              <td>{item.created_at?.slice(0, 10)}</td>
+              <td>
+                <button className="view" onClick={() => setEditingItem(item)}>
+                  {item.status === '02' ? '답변 보기' : '답변 작성'}
+                </button>
+              
               </td>
             </tr>
-          )}
+          ))}
         </tbody>
       </table>
 
-
-      {/* 🔹 페이지네이션 */}
       <div className="pagination">
         {Array.from({ length: totalPages }).map((_, i) => (
           <button
@@ -178,18 +161,18 @@ export default function InquiryTable() {
         ))}
       </div>
 
-      {/* 🔹 답변 모달 */}
       {editingItem && (
         <div className="modal-backdrop" onClick={() => setEditingItem(null)}>
           <form className="modal" onClick={(e) => e.stopPropagation()} onSubmit={handleSave}>
-            <h3>문의 답변</h3>
+            <h3>문의 답변 수정</h3>
 
-            <div className="modal-row"><label>제목</label><div className="input-area">{editingItem.title}</div></div>
+            <div className="modal-row"><label>카테고리</label><div className="input-area">{editingItem.category}</div></div>
             <div className="modal-row"><label>고객사</label><div className="input-area">{editingItem.user_id}</div></div>
+            <div className="modal-row"><label>제목</label><div className="input-area"><strong>{editingItem.title}</strong></div></div>
             <div className="modal-row"><label>문의 내용</label><div className="input-area">{editingItem.content}</div></div>
 
             <div className="modal-row">
-              <label>상태</label>
+              <label htmlFor="status">상태</label>
               <div className="input-area">
                 <select name="status" defaultValue={editingItem.status}>
                   <option value="01">답변 대기</option>
@@ -199,35 +182,41 @@ export default function InquiryTable() {
             </div>
 
             <div className="modal-row">
-              <label>답변 내용</label>
+              <label htmlFor="response">답변 내용</label>
               <div className="input-area">
-                <textarea name="response" defaultValue={editingItem.comments?.[0]?.content || ''} rows={5} required />
+                <textarea
+                  name="response"
+                  defaultValue={editingItem.comments?.[0]?.content || ''}
+                  placeholder="답변 내용을 입력하세요"
+                  rows={5}
+                  required
+                />
               </div>
             </div>
 
             <div className="modal-row">
-              <label>첨부 파일</label>
+              <label htmlFor="file">첨부 파일</label>
               <div className="input-area">
                 <input type="file" name="file" accept=".pdf,.jpg,.jpeg" />
+                <p className="file-hint">PDF, JPG 파일만 업로드 가능 (최대 5MB)</p>
               </div>
             </div>
 
             <div className="modal-actions">
               <button type="button" onClick={() => setEditingItem(null)}>취소</button>
-              <button type="submit" className="primary">저장</button>
+              <button type="submit">답변 저장</button>
             </div>
           </form>
         </div>
       )}
 
-      {/* 🔹 삭제 확인 모달 */}
       {confirmDeleteId && (
         <div className="modal-backdrop" onClick={() => setConfirmDeleteId(null)}>
           <div className="modal confirm" onClick={(e) => e.stopPropagation()}>
             <h3>삭제 확인</h3>
             <p>정말로 <strong>{deletingItem?.title}</strong> 문의를 삭제하시겠습니까?</p>
             <div className="modal-actions">
-              <button className="cancel" onClick={() => setConfirmDeleteId(null)}>취소</button>
+              <button onClick={() => setConfirmDeleteId(null)}>취소</button>
               <button className="danger" onClick={handleDelete}>삭제</button>
             </div>
           </div>

@@ -3,16 +3,11 @@ from db_init import db
 from datetime import datetime
 from services.my_inquiry_service import get_user_role  # 권한 확인 함수 사용
 
-def create_inquiry(user_id, data):
-    print(">> inquiry 생성 요청 도착:", data)  # 요청 확인용
 
-    title = data.get("title")
-    content = data.get("content")
-    category_code = data.get("category_code")
-    file_path = data.get("file_path")
+def create_inquiry(user_id, title, content, category_code, file_path):
+    print(">> inquiry 생성 요청 도착:", title, category_code)
 
     if not title or not content or not category_code:
-        print(">> 필수 항목 누락됨")
         return {"message": "필수 항목이 누락되었습니다."}, 400
 
     inquiry = Inquiry(
@@ -25,8 +20,8 @@ def create_inquiry(user_id, data):
     )
     db.session.add(inquiry)
     db.session.commit()
-    print(">> 문의 저장 완료, ID:", inquiry.id)
     return {"message": "문의가 등록되었습니다.", "inquiry_id": inquiry.id}, 201
+
 
 def get_all_inquiries():
     inquiries = Inquiry.query.order_by(Inquiry.created_at.desc()).all()
@@ -79,6 +74,11 @@ def delete_inquiry(inquiry_id, user_id):
     return {"message": "문의가 삭제되었습니다."}, 200
 
 def _serialize(inquiry):
+    latest_comment = (
+        sorted(inquiry.comments, key=lambda c: c.created_at)
+        [-1].content if inquiry.comments else None
+    )
+
     return {
         "id": inquiry.id,
         "title": inquiry.title,
@@ -88,5 +88,7 @@ def _serialize(inquiry):
         "user_id": inquiry.user_id,
         "status": inquiry.status,
         "created_at": inquiry.created_at,
-        "updated_at": inquiry.updated_at
+        "updated_at": inquiry.updated_at,
+        "answer": latest_comment  # ✅ 추가된 관리자 답변 필드
     }
+

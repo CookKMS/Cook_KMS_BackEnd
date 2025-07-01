@@ -206,7 +206,7 @@ export default function MyInquiriesPage() {
                   <section className="card-details" onClick={(e) => e.stopPropagation()}>
                     <div className="inquiry-content-section">
                       <strong>문의 내용</strong>
-                      <p>{item.content}</p>
+                      <p>{String(item.content || "")}</p>
                       {item.file_path && (
                         <a href={item.file_path} target="_blank" rel="noreferrer">
                           📎 첨부파일 다운로드
