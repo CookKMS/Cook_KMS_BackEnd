@@ -1,6 +1,12 @@
 from models.faq import Faq
 from db_init import db
 from datetime import datetime
+from models.common import Code  # ✅ 공통 코드 모델 import
+
+# 🔹 공통 코드 매핑 함수
+def load_code_map(code_type):
+    codes = Code.query.filter_by(code_type=code_type).all()
+    return {c.code_key: c.code_value for c in codes}
 
 def create_faq(data):
     title = data.get("title")
@@ -23,12 +29,15 @@ def create_faq(data):
 
 def get_all_faqs():
     faqs = Faq.query.order_by(Faq.created_at.desc()).all()
+    category_map = load_code_map("faq_category")
+
     result = [
         {
             "id": f.id,
             "title": f.title,
             "content": f.content,
             "category_code": f.category_code,
+            "category_name": category_map.get(f.category_code, ""),  # ✅ 추가
             "file_path": f.file_path,
             "created_at": f.created_at,
             "updated_at": f.updated_at
@@ -42,11 +51,14 @@ def get_faq_detail(faq_id):
     if not faq:
         return {"message": "FAQ를 찾을 수 없습니다."}, 404
 
+    category_map = load_code_map("faq_category")
+
     result = {
         "id": faq.id,
         "title": faq.title,
         "content": faq.content,
         "category_code": faq.category_code,
+        "category_name": category_map.get(faq.category_code, ""),  # ✅ 추가
         "file_path": faq.file_path,
         "created_at": faq.created_at,
         "updated_at": faq.updated_at
@@ -55,12 +67,15 @@ def get_faq_detail(faq_id):
 
 def get_faqs_by_category(category_code):
     faqs = Faq.query.filter_by(category_code=category_code).order_by(Faq.created_at.desc()).all()
+    category_map = load_code_map("faq_category")
+
     result = [
         {
             "id": f.id,
             "title": f.title,
             "content": f.content,
             "category_code": f.category_code,
+            "category_name": category_map.get(f.category_code, ""),  # ✅ 추가
             "file_path": f.file_path,
             "created_at": f.created_at,
             "updated_at": f.updated_at

@@ -9,8 +9,8 @@ const categoryCodeMap = {
   '계정관리': 'ACCOUNT',
   '기타': 'ETC'
 };
+const codeToLabel = Object.fromEntries(Object.entries(categoryCodeMap).map(([k, v]) => [v, k]));
 
-// 조회용 필터에는 '전체' 포함
 const filterCategories = ['전체', ...Object.keys(categoryCodeMap)];
 
 export default function FaqTable() {
@@ -24,7 +24,6 @@ export default function FaqTable() {
   const [currentFaq, setCurrentFaq] = useState(null);
   const [file, setFile] = useState(null);
 
-  // ✅ FAQ 목록 불러오기
   const fetchFaqs = async () => {
     try {
       let url = '/api/faq';
@@ -51,27 +50,31 @@ export default function FaqTable() {
   const totalPages = Math.ceil(filteredFaqs.length / itemsPerPage);
   const paginatedFaqs = filteredFaqs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  // ✅ 등록 or 수정
+  // ✅ 저장 (등록: FormData / 수정: JSON)
   const handleSave = async (e) => {
     e.preventDefault();
     const form = e.target;
 
-    const formData = new FormData();
-    formData.append('title', form.title.value);
-    formData.append('content', form.content.value);
-    formData.append('category', form.category.value);  // 직접 코드값 사용
-    if (file) {
-      formData.append('file', file);
-    }
+    const title = form.title.value;
+    const content = form.content.value;
+    const category_code = form.category.value;
 
     try {
       if (modalType === 'add') {
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('content', content);
+        formData.append('category', category_code);
+        if (file) formData.append('file', file);
+
         await axios.post('/api/faq/create', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
       } else {
-        await axios.put(`/api/faq/${currentFaq.id}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
+        await axios.put(`/api/faq/${currentFaq.id}`, {
+          title,
+          content,
+          category_code
         });
       }
 
@@ -115,7 +118,11 @@ export default function FaqTable() {
               setCurrentPage(1);
             }}
           />
-          <button className="add-button" onClick={() => { setModalType('add'); setCurrentFaq(null); }}>
+          <button className="add-button" onClick={() => {
+            setModalType('add');
+            setCurrentFaq(null);
+            setFile(null);
+          }}>
             + 새 FAQ 추가
           </button>
         </div>
@@ -130,48 +137,38 @@ export default function FaqTable() {
           </tr>
         </thead>
         <tbody>
-          {paginatedFaqs.length > 0 ? (
-            paginatedFaqs.map(faq => (
-              <tr key={faq.id}>
-                <td>{faq.title}</td>
-                <td>{faq.category}</td>
-                <td>
+            {paginatedFaqs.length > 0 ? (
+              paginatedFaqs.map(faq => (
+                <tr key={faq.id}>
+                  <td>{faq.title}</td>
+                  <td>{codeToLabel[faq.category_code] || faq.category_code}</td> {/* 이 부분입니다 */}
+                  <td>
                   <button
                     className="icon-btn"
                     onClick={() => {
                       setModalType('edit');
                       setCurrentFaq(faq);
                     }}
-                  >
-                    ✏️
-                  </button>
+                  >✏️</button>
                   <button
                     className="icon-btn"
                     onClick={() => {
                       setModalType('delete');
                       setCurrentFaq(faq);
                     }}
-                  >
-                    🗑️
-                  </button>
+                  >🗑️</button>
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="3" style={{
-                textAlign: 'center',
-                padding: '12px 16px',
-                fontSize: '1rem',
-                color: '#888'
-              }}>
+              <td colSpan="3" style={{ textAlign: 'center', color: '#888', padding: '12px' }}>
                 등록된 FAQ가 없습니다.
               </td>
             </tr>
           )}
         </tbody>
       </table>
-
 
       <div className="pagination">
         {Array.from({ length: totalPages }).map((_, i) => (
@@ -203,7 +200,7 @@ export default function FaqTable() {
             <div className="modal-row">
               <label>카테고리</label>
               <div className="input-area">
-                <select name="category" defaultValue={currentFaq?.category || ''} required>
+                <select name="category" defaultValue={currentFaq?.category_code || ''} required>
                   <option value="">카테고리 선택</option>
                   {Object.entries(categoryCodeMap).map(([label, code]) => (
                     <option key={code} value={code}>{label}</option>
@@ -212,12 +209,14 @@ export default function FaqTable() {
               </div>
             </div>
 
-            <div className="modal-row">
-              <label>첨부 파일</label>
-              <div className="input-area">
-                <input type="file" accept=".pdf,.jpg,.jpeg" onChange={(e) => setFile(e.target.files[0])} />
+            {modalType === 'add' && (
+              <div className="modal-row">
+                <label>첨부 파일</label>
+                <div className="input-area">
+                  <input type="file" accept=".pdf,.jpg,.jpeg" onChange={(e) => setFile(e.target.files[0])} />
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="modal-actions">
               <button type="button" className="cancel" onClick={() => setModalType(null)}>취소</button>
@@ -231,7 +230,7 @@ export default function FaqTable() {
         <div className="modal-backdrop" onClick={() => setModalType(null)}>
           <div className="modal confirm" onClick={(e) => e.stopPropagation()}>
             <h3>삭제 확인</h3>
-            <p>정말로 <strong>{currentFaq.title}</strong> FAQ를 삭제하시겠습니까?</p>
+            <p><strong>{currentFaq.title}</strong> 항목을 삭제하시겠습니까?</p>
             <div className="modal-actions">
               <button className="cancel" onClick={() => setModalType(null)}>취소</button>
               <button className="danger" onClick={handleDelete}>삭제</button>

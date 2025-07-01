@@ -19,25 +19,22 @@ export default function EmployeeFaqPage() {
     const fetchFaqs = async () => {
       try {
         const res = await axios.get("/api/faq");
-        setFaqList(res.data || []);
+        setFaqList(res.data);
       } catch (err) {
         console.error("FAQ 불러오기 실패:", err);
         alert("FAQ 데이터를 불러오는 데 실패했습니다.");
       }
     };
-
     fetchFaqs();
   }, []);
 
   const filteredFaqs = faqList.filter((faq) => {
-    const matchCategory = selectedCategory === "전체" || faq.category === selectedCategory;
-    const question = typeof faq.question === "string" ? faq.question : "";
-    const answer = typeof faq.answer === "string" ? faq.answer : "";
-
+    const matchCategory = selectedCategory === "전체" || faq.category_name === selectedCategory;
+    const question = typeof faq.title === "string" ? faq.title : "";
+    const answer = typeof faq.content === "string" ? faq.content : "";
     const matchSearch =
       question.toLowerCase().includes(searchTerm.toLowerCase()) ||
       answer.toLowerCase().includes(searchTerm.toLowerCase());
-
     return matchCategory && matchSearch;
   });
 
@@ -59,7 +56,6 @@ export default function EmployeeFaqPage() {
 
         <input
           type="search"
-          aria-label="검색어 입력"
           placeholder="검색어를 입력하세요"
           className="faq-search"
           value={searchTerm}
@@ -69,24 +65,22 @@ export default function EmployeeFaqPage() {
           }}
         />
 
-        <nav className="faq-categories" role="list">
+        <nav className="faq-categories">
           {categories.map((cat) => (
             <button
               key={cat}
-              type="button"
               className={`faq-category-btn ${selectedCategory === cat ? "active" : ""}`}
               onClick={() => {
                 setSelectedCategory(cat);
                 setCurrentPage(1);
               }}
-              role="listitem"
             >
               {cat}
             </button>
           ))}
         </nav>
 
-        <section aria-label="FAQ 목록" className="faq-list">
+        <section className="faq-list">
           {paginatedFaqs.length === 0 ? (
             <p className="no-results">조회되는 FAQ가 없습니다.</p>
           ) : (
@@ -100,24 +94,15 @@ export default function EmployeeFaqPage() {
                   <button
                     className="faq-question"
                     onClick={() => toggleExpand(globalIndex)}
-                    aria-expanded={expandedIndex === globalIndex}
-                    aria-controls={`faq-answer-${globalIndex}`}
-                    id={`faq-question-${globalIndex}`}
                   >
-                    [{faq.category}] {String(faq.question || "질문 없음")}
-                    <span className="faq-toggle-icon" aria-hidden="true">
+                    [{faq.category_name || faq.category_code}] {faq.title || "질문 없음"}
+                    <span className="faq-toggle-icon">
                       {expandedIndex === globalIndex ? "▲" : "▼"}
                     </span>
                   </button>
-
                   {expandedIndex === globalIndex && (
-                    <div
-                      id={`faq-answer-${globalIndex}`}
-                      className="faq-answer"
-                      role="region"
-                      aria-labelledby={`faq-question-${globalIndex}`}
-                    >
-                      <p>{String(faq.answer || "답변 없음")}</p>
+                    <div className="faq-answer">
+                      <p>{faq.content || "답변 없음"}</p>
                     </div>
                   )}
                 </article>
@@ -127,12 +112,8 @@ export default function EmployeeFaqPage() {
         </section>
 
         {totalPages > 1 && (
-          <nav className="pagination" aria-label="페이지 이동">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              aria-label="이전 페이지"
-            >
+          <nav className="pagination">
+            <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>
               &lt;
             </button>
             {Array.from({ length: totalPages }).map((_, i) => (
@@ -144,11 +125,7 @@ export default function EmployeeFaqPage() {
                 {i + 1}
               </button>
             ))}
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              aria-label="다음 페이지"
-            >
+            <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
               &gt;
             </button>
           </nav>
