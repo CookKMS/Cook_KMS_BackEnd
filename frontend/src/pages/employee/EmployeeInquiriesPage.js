@@ -1,9 +1,22 @@
+// src/pages/employee/EmployeeInquiriesPage.js
+
 import React, { useEffect, useState } from "react";
 import axios from "../../utils/axiosInstance";
 import EmployeeHeader from "./EmployeeHeader";
 import "../../styles/MyInquiriesPage.css";
 
-const categories = ["전체", "새 기능", "수정", "버그", "문의", "장애", "긴급 지원"];
+// 한글 ↔ 코드 매핑
+const categoryMap = {
+  "새 기능": "FEATURE",
+  "수정": "EDIT",
+  "버그": "BUG",
+  "문의": "QUESTION",
+  "장애": "ISSUE",
+  "긴급 지원": "EMERGENCY"
+};
+const reverseCategoryMap = Object.fromEntries(Object.entries(categoryMap).map(([k, v]) => [v, k]));
+
+const categories = ["전체", ...Object.keys(categoryMap)];
 
 export default function EmployeeInquiriesPage() {
   const [inquiries, setInquiries] = useState([]);
@@ -24,16 +37,11 @@ export default function EmployeeInquiriesPage() {
     file: null,
   });
 
-  // ✅ 문의 목록 불러오기
   useEffect(() => {
     const fetchInquiries = async () => {
       try {
         const res = await axios.get("/api/my/inquiries");
-        const list = Array.isArray(res.data.inquiries)
-          ? res.data.inquiries
-          : Array.isArray(res.data)
-            ? res.data
-            : [];
+        const list = Array.isArray(res.data.inquiries) ? res.data.inquiries : [];
         setInquiries(list);
       } catch (err) {
         console.error("내 문의 내역 불러오기 실패:", err);
@@ -43,22 +51,18 @@ export default function EmployeeInquiriesPage() {
     fetchInquiries();
   }, []);
 
-  const filtered = Array.isArray(inquiries)
-    ? inquiries.filter(item => {
-        const categoryMatch = filter === "전체" || (item.category || "") === filter;
-        const searchMatch =
-          (item.title || "").includes(search) ||
-          (item.content || "").includes(search) ||
-          (item.answer || "").includes(search);
-        return categoryMatch && searchMatch;
-      })
-    : [];
+  const filtered = inquiries.filter(item => {
+    const koreanCategory = reverseCategoryMap[item.category_code] || "";
+    const categoryMatch = filter === "전체" || koreanCategory === filter;
+    const searchMatch =
+      (item.title || "").includes(search) ||
+      (item.content || "").includes(search) ||
+      (item.answer || "").includes(search);
+    return categoryMatch && searchMatch;
+  });
 
   const totalPages = Math.ceil(filtered.length / inquiriesPerPage);
-  const paged = filtered.slice(
-    (currentPage - 1) * inquiriesPerPage,
-    currentPage * inquiriesPerPage
-  );
+  const paged = filtered.slice((currentPage - 1) * inquiriesPerPage, currentPage * inquiriesPerPage);
 
   const toggleExpand = (id) => {
     setExpandedId(expandedId === id ? null : id);
@@ -73,7 +77,6 @@ export default function EmployeeInquiriesPage() {
     }
   };
 
-  // ✅ 수정된 문의 등록 함수 (415 에러 해결)
   const submitNewInquiry = async (e) => {
     e.preventDefault();
     const { title, category, customer, inquiryContent, file } = newForm;
@@ -86,12 +89,11 @@ export default function EmployeeInquiriesPage() {
     try {
       const formData = new FormData();
       formData.append("title", title);
-      formData.append("category", category);
+      formData.append("category", categoryMap[category]); // 한글 → 코드 변환
       formData.append("customer", customer);
       formData.append("content", inquiryContent);
       if (file) formData.append("file", file);
 
-      // ✅ headers 제거 (Axios가 자동으로 Content-Type 설정)
       await axios.post("/api/inquiry", formData);
 
       alert("문의가 등록되었습니다.");
@@ -169,7 +171,9 @@ export default function EmployeeInquiriesPage() {
                 <header className="card-header">
                   <div className="left-group">
                     <div className="status-tags">
-                      <span className="category-tag">{item.category}</span>
+                      <span className="category-tag">
+                        {reverseCategoryMap[item.category_code] || item.category_code}
+                      </span>
                       <span className={`answer-status ${item.status === "02" ? "answered" : "pending"}`}>
                         {item.status === "02" ? "답변 완료" : "답변 대기"}
                       </span>
@@ -216,9 +220,6 @@ export default function EmployeeInquiriesPage() {
 
           {totalPages > 1 && (
             <nav className="pagination">
-              <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>
-                &lt;
-              </button>
               {Array.from({ length: totalPages }).map((_, i) => (
                 <button
                   key={i}
@@ -228,15 +229,11 @@ export default function EmployeeInquiriesPage() {
                   {i + 1}
                 </button>
               ))}
-              <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
-                &gt;
-              </button>
             </nav>
           )}
         </section>
       </main>
 
-      {/* ✅ 문의 작성 모달 */}
       {showNewModal && (
         <div className="modal-backdrop" onClick={() => setShowNewModal(false)}>
           <form
@@ -258,7 +255,7 @@ export default function EmployeeInquiriesPage() {
             <label>카테고리</label>
             <select name="category" value={newForm.category} onChange={handleNewFormChange} required>
               <option value="">카테고리 선택</option>
-              {categories.filter(c => c !== "전체").map(cat => (
+              {Object.keys(categoryMap).map(cat => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
@@ -277,7 +274,6 @@ export default function EmployeeInquiriesPage() {
         </div>
       )}
 
-      {/* ✅ 삭제 확인 모달 */}
       {confirmDeleteId && (
         <div className="modal-backdrop" onClick={() => setConfirmDeleteId(null)}>
           <div className="modal confirm-delete-modal" onClick={(e) => e.stopPropagation()}>

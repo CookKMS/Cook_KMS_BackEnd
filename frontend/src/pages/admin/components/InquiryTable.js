@@ -45,43 +45,45 @@ export default function InquiryTable() {
   const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   // ✅ 답변 저장
-  const handleSave = async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const status = form.status.value;
-    const content = form.response.value;
-    const file = form.file.files[0];
+const handleSave = async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const status = form.status.value;
+  const content = form.response.value;
+  const file = form.file.files[0];
 
-    try {
-      if (editingItem.comments?.length > 0) {
-        await axios.delete(`/api/inquiry/comment/${editingItem.comments[0].comment_id}`);
-      }
-
-      if (file) {
-        const formData = new FormData();
-        formData.append('file', file);
-        await axios.post('/api/file/upload', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-      }
-
-      await axios.post(`/api/inquiry/${editingItem.id}/comment`, { content });
-
-    //   await axios.put(`/api/inquiry/${editingItem.id}`, {
-    //     title: editingItem.title,
-    //     content: editingItem.content,
-    //     category_code: editingItem.category_code, // ✅ category → category_code
-    //     status, // ✅ 관리자용 API는 status 변경 가능
-    // });
-
-      alert('답변 저장 완료');
-      setEditingItem(null);
-      fetchInquiries();
-    } catch (err) {
-      console.error('답변 저장 실패:', err);
-      alert('저장 중 오류가 발생했습니다.');
+  try {
+    if (editingItem.comments?.length > 0) {
+      await axios.delete(`/api/inquiry/comment/${editingItem.comments[0].comment_id}`);
     }
-  };
+
+    let uploadedFilePath = null;
+
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await axios.post('/api/file/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      uploadedFilePath = res.data.file_path;
+    }
+
+    // ✅ 댓글 등록 (파일 경로 포함)
+    await axios.post(`/api/inquiry/${editingItem.id}/comment`, {
+      content,
+      file_path: uploadedFilePath, // 백엔드에 file_path 필드가 존재해야 함
+    });
+
+    alert('답변 저장 완료');
+    setEditingItem(null);
+    fetchInquiries();
+  } catch (err) {
+    console.error('답변 저장 실패:', err);
+    alert('저장 중 오류가 발생했습니다.');
+  }
+};
 
   // ✅ 문의 삭제
   const handleDelete = async () => {

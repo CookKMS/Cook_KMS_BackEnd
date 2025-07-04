@@ -1,29 +1,39 @@
-// src/pages/FAQPage.js
-
 import React, { useState, useEffect } from "react";
-import axios from "../utils/axiosInstance"; // ✅ axios 인스턴스
+import axios from "../utils/axiosInstance";
 import Header from "../components/Header";
 import "../styles/FAQPage.css";
 
+// ✅ 한글 → 코드값 매핑
+const categoryMap = {
+  "설치,구성": "SETUP",
+  "접근통제": "SECURITY",
+  "계정관리": "ACCOUNT",
+  "기타": "ETC",
+};
+
+// ✅ 코드값 → 한글 역매핑
+const codeToLabel = Object.fromEntries(
+  Object.entries(categoryMap).map(([k, v]) => [v, k])
+);
+
 // ✅ 카테고리 목록
-const categories = ['전체', '설치,구성', '접근통제', '계정관리', '기타'];
+const categories = ["전체", ...Object.keys(categoryMap)];
 
 export default function FAQPage() {
   const [faqList, setFaqList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [expandedIndex, setExpandedIndex] = useState(null);
-
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // ✅ FAQ 데이터 로드
+  // ✅ FAQ 데이터 불러오기
   const fetchFaqs = async () => {
     try {
       let url = "/api/faq";
-
       if (selectedCategory !== "전체") {
-        url = `/api/faq/category/${selectedCategory}`;
+        const code = categoryMap[selectedCategory];
+        url = `/api/faq/category/${code}`;
       }
 
       const response = await axios.get(url);
@@ -37,7 +47,7 @@ export default function FAQPage() {
     fetchFaqs();
   }, [selectedCategory]);
 
-  // ✅ 검색어 필터링
+  // ✅ 검색 필터링
   const filteredFaqs = faqList.filter((faq) => {
     const matchSearch =
       faq.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -108,7 +118,7 @@ export default function FAQPage() {
                     aria-controls={`faq-answer-${globalIndex}`}
                     id={`faq-question-${globalIndex}`}
                   >
-                    [{faq.category}] {faq.title}
+                    [{codeToLabel[faq.category_code] || faq.category_code}] {faq.title}
                     <span className="faq-toggle-icon" aria-hidden="true">
                       {expandedIndex === globalIndex ? "▲" : "▼"}
                     </span>

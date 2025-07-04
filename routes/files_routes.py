@@ -1,39 +1,30 @@
-# 파일 라우트 정의
-from flask import Blueprint, request
-from services.files_service import (
-    save_file,
-    delete_file_by_id,
-    replace_file_by_id,
-    download_file_by_id
-)
-from utils.decorators import custom_jwt_required, role_required
+from flask import Blueprint, request, jsonify
+from werkzeug.utils import secure_filename
+import os
+import uuid
 
 file_bp = Blueprint("file_bp", __name__, url_prefix="/api/file")
 
-# 파일 업로드 - 인증 필요, 역할은 board_code에 따라 내부에서 판별
 @file_bp.route("/upload", methods=["POST"])
-@custom_jwt_required
-@role_required("user", "employee", "admin")
-def upload():
-    return save_file(request)
+def upload_file():
+    file = request.files.get("file")
 
-# 파일 삭제 - 인증된 사용자라면 삭제 가능
-@file_bp.route("/<int:file_id>", methods=["DELETE"])
-@custom_jwt_required
-@role_required("user", "employee", "admin")
-def delete(file_id):
-    return delete_file_by_id(file_id)
+    if not file:
+        return jsonify({"message": "파일이 누락되었습니다."}), 400
 
-# 파일 교체 - 기존 파일을 새로운 파일로 교체
-@file_bp.route("/<int:file_id>/replace", methods=["PUT"])
-@custom_jwt_required
-@role_required("user", "employee", "admin")
-def replace(file_id):
-    return replace_file_by_id(file_id, request)
+    # 확장자 추출
+    ext = os.path.splitext(file.filename)[1]
+    # 고유 파일명 생성
+    filename = f"{uuid.uuid4()}{ext}"
 
-# 파일 다운로드 - 인증된 사용자 누구나 가능
-@file_bp.route("/download/<int:file_id>", methods=["GET"])
-@custom_jwt_required
-@role_required("user", "employee", "admin")
-def download(file_id):
-    return download_file_by_id(file_id)
+    # 저장 경로 지정 및 생성
+    upload_dir = os.path.join("uploads", "comment_files")
+    os.makedirs(upload_dir, exist_ok=True)
+
+    # 파일 저장
+    file.save(os.path.join(upload_dir, filename))
+
+    # 클라이언트에 반환할 경로 (슬래시 정규화 포함)
+    file_path = f"uploads/comment_files/{filename}".replace("\\", "/")
+
+    return jsonify({"file_path": file_path}), 200

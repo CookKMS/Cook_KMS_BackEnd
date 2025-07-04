@@ -4,6 +4,9 @@ from services.inquiry_service import (
     create_inquiry, get_all_inquiries, get_inquiry_detail,
     get_inquiries_by_category, update_inquiry, delete_inquiry
 )
+import os
+import uuid
+from werkzeug.utils import secure_filename
 
 inquiry_bp = Blueprint("inquiry_bp", __name__, url_prefix="/api/inquiry")
 
@@ -16,23 +19,28 @@ def register_inquiry():
     # ✅ FormData에서 값 추출
     title = request.form.get("title")
     content = request.form.get("content")
-    category_code = request.form.get("category")
-    customer = request.form.get("customer")  # ❗ 실제 DB에는 없지만 프론트에선 존재
+    category_code = request.form.get("category")  # 프론트에서는 category, 모델은 category_code
     file = request.files.get("file")
 
     # ✅ 파일 저장 처리
     file_path = None
     if file:
-        from werkzeug.utils import secure_filename
-        import os
-        filename = secure_filename(file.filename)
+        ext = os.path.splitext(file.filename)[1]
+        unique_name = str(uuid.uuid4()) + ext
         upload_dir = os.path.join("uploads", "inquiries")
         os.makedirs(upload_dir, exist_ok=True)
-        file_path = os.path.join(upload_dir, filename)
-        file.save(file_path)
+        save_path = os.path.join(upload_dir, unique_name)
+        file.save(save_path)
+        file_path = save_path.replace("\\", "/")  # 윈도우 경로 정규화
 
-    # ✅ 서비스 함수 호출
-    result, status = create_inquiry(user_id, title, content, category_code, file_path)
+    # ✅ 서비스 함수 호출 (모델 필드에 정확히 맞춰 전달)
+    result, status = create_inquiry(
+        user_id=user_id,
+        title=title,
+        content=content,
+        category_code=category_code,
+        file_path=file_path
+    )
     return jsonify(result), status
 
 

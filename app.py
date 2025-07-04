@@ -20,15 +20,19 @@ from routes.my_knowledge_routes import my_knowledge_bp
 from flask_cors import CORS
 
 def create_app():
-    # ✅ React 빌드된 정적 파일 폴더 (frontend)
     app = Flask(__name__, static_folder="frontend/build", static_url_path="/")
     app.config.from_object(Config)
+
+    # ✅ 업로드 폴더 경로 설정
+    app.config["UPLOAD_FOLDER"] = os.path.join(os.getcwd(), "uploads")
 
     # ✅ DB 초기화
     init_db(app)
 
-    # ✅ CORS 허용
-    CORS(app)
+    # ✅ CORS 설정 (배포 시 origin 지정 권장)
+    CORS(app, resources={r"/api/*": {"origins": ["http://43.201.12.123", "http://43.201.12.123:3000"]}})
+
+
 
     # ✅ API 블루프린트 등록
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
@@ -43,18 +47,28 @@ def create_app():
     app.register_blueprint(admin_dashboard_bp, url_prefix="/api/admin/dashboard")
     app.register_blueprint(my_knowledge_bp, url_prefix="/api/my/knowledge")
 
-    # ✅ 파일 다운로드 라우트
+    # ✅ 파일 다운로드 (일반)
     @app.route("/uploads/<filename>")
     def uploaded_file(filename):
         filename = secure_filename(filename)
         return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
-    # ✅ React index.html 기본 서빙
+    # ✅ 파일 다운로드 (지식 문서 전용)
+    @app.route('/uploads/knowledge/<filename>')
+    def download_knowledge_file(filename):
+        return send_from_directory(os.path.join(app.config["UPLOAD_FOLDER"], "knowledge"), filename, as_attachment=True)
+
+    # ✅ 파일 다운로드 (문의 전용)
+    @app.route('/uploads/inquiries/<filename>')
+    def download_inquiry_file(filename):
+        return send_from_directory('uploads/inquiries', filename, as_attachment=True)
+
+    # ✅ React 정적 파일 서빙 (루트 경로)
     @app.route("/")
     def serve_react():
         return send_from_directory(app.static_folder, "index.html")
 
-    # ✅ SPA 경로 대응 (React Router용 처리)
+    # ✅ React Router 대응
     @app.errorhandler(404)
     def not_found(e):
         if request.path.startswith("/api/"):
@@ -63,7 +77,7 @@ def create_app():
 
     return app
 
-# ✅ 개발용 실행
+# ✅ 실행 설정 (배포 시 외부 접속 허용)
 if __name__ == "__main__":
     app = create_app()
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)

@@ -5,7 +5,17 @@ import axios from "../../utils/axiosInstance";
 import EmployeeHeader from "./EmployeeHeader";
 import "../../styles/FAQPage.css";
 
-const categories = ['전체', '설치,구성', '접근통제', '계정관리', '기타'];
+// 한글 ↔ 영어 카테고리 매핑
+const categoryMap = {
+  "설치,구성": "SETUP",
+  "접근통제": "SECURITY",
+  "계정관리": "ACCOUNT",
+  "기타": "ETC",
+};
+const reverseCategoryMap = Object.fromEntries(
+  Object.entries(categoryMap).map(([k, v]) => [v, k])
+);
+const categories = ["전체", ...Object.keys(categoryMap)];
 
 export default function EmployeeFaqPage() {
   const [faqList, setFaqList] = useState([]);
@@ -18,7 +28,12 @@ export default function EmployeeFaqPage() {
   useEffect(() => {
     const fetchFaqs = async () => {
       try {
-        const res = await axios.get("/api/faq");
+        let url = "/api/faq";
+        if (selectedCategory !== "전체") {
+          const categoryCode = categoryMap[selectedCategory];
+          url = `/api/faq/category/${categoryCode}`;
+        }
+        const res = await axios.get(url);
         setFaqList(res.data);
       } catch (err) {
         console.error("FAQ 불러오기 실패:", err);
@@ -26,16 +41,15 @@ export default function EmployeeFaqPage() {
       }
     };
     fetchFaqs();
-  }, []);
+  }, [selectedCategory]);
 
   const filteredFaqs = faqList.filter((faq) => {
-    const matchCategory = selectedCategory === "전체" || faq.category_name === selectedCategory;
     const question = typeof faq.title === "string" ? faq.title : "";
     const answer = typeof faq.content === "string" ? faq.content : "";
-    const matchSearch =
+    return (
       question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      answer.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchCategory && matchSearch;
+      answer.toLowerCase().includes(searchTerm.toLowerCase())
+    );
   });
 
   const totalPages = Math.ceil(filteredFaqs.length / itemsPerPage);
@@ -95,7 +109,7 @@ export default function EmployeeFaqPage() {
                     className="faq-question"
                     onClick={() => toggleExpand(globalIndex)}
                   >
-                    [{faq.category_name || faq.category_code}] {faq.title || "질문 없음"}
+                    [{reverseCategoryMap[faq.category_code] || faq.category_code}] {faq.title || "질문 없음"}
                     <span className="faq-toggle-icon">
                       {expandedIndex === globalIndex ? "▲" : "▼"}
                     </span>

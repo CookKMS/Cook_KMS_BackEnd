@@ -5,7 +5,17 @@ import axios from "../utils/axiosInstance";
 import Header from "../components/Header";
 import "../styles/MyInquiriesPage.css";
 
-const categories = ["전체", "새 기능", "수정", "버그", "문의", "장애", "긴급 지원"];
+const categories = // 사용자에게 출력
+["전체", "새 기능", "수정", "버그", "문의", "장애", "긴급 지원"];
+
+const categoryMap = { // 전송 시 매핑값
+  "새 기능": "FEATURE",
+  "수정": "EDIT",
+  "버그": "BUG",
+  "문의": "QUESTION",
+  "장애": "ISSUE",
+  "긴급 지원": "EMERGENCY"
+};
 
 export default function MyInquiriesPage() {
   const [inquiries, setInquiries] = useState([]);
@@ -63,16 +73,18 @@ export default function MyInquiriesPage() {
         file_id = uploadRes.data.file_id;
       }
 
-        const payload = {
-      title,
-      content: inquiryContent,
-      category_code: category,
-      file_path: file_id ? `/api/file/download/${file_id}` : null,
-    };
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("content", inquiryContent);
+      formData.append("category", categoryMap[category]); // ✅ backend expects 'category'
+      if (file_id) {
+        formData.append("file_path", `/api/file/download/${file_id}`);
+      }
 
-    console.log(">> 전송 payload:", payload); // 확인용 로그
+      await axios.post("/api/inquiry", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
 
-    await axios.post("/api/inquiry", payload); // ✅ 반드시 등록 요청해야 DB에 들어감
 
     alert("문의가 등록되었습니다.");
     setShowNewModal(false);
@@ -108,13 +120,17 @@ export default function MyInquiriesPage() {
   };
 
   const filtered = inquiries.filter(item => {
-    const matchCategory = filter === "전체" || item.category === filter;
-    const matchKeyword =
-      (item.title || "").includes(search) ||
-      (item.content || "").includes(search) ||
-      (item.answer || "").includes(search);
-    return matchCategory && matchKeyword;
-  });
+  const matchCategory =
+    filter === "전체" || item.category_code === categoryMap[filter]; // ✅ 수정됨
+
+  const matchKeyword =
+    (item.title || "").includes(search) ||
+    (item.content || "").includes(search) ||
+    (item.answer || "").includes(search);
+
+  return matchCategory && matchKeyword;
+});
+
 
   const totalPages = Math.ceil(filtered.length / inquiriesPerPage);
   const paged = filtered.slice(

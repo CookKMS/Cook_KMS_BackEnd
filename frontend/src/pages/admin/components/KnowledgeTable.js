@@ -3,7 +3,20 @@ import React, { useEffect, useState } from 'react';
 import axios from '../../../utils/axiosInstance';
 import '../../../styles/Admin/KnowledgeTable.css';
 
-const categories = ['전체', '새 기능', '수정', '버그', '문의', '장애', '긴급 지원'];
+// 한글 → 영문 매핑
+const categoryMap = {
+  '새 기능': 'FEATURE',
+  '수정': 'EDIT',
+  '버그': 'BUG',
+  '문의': 'QUESTION',
+  '장애': 'ISSUE',
+  '긴급 지원': 'EMERGENCY'
+};
+
+// 영문 → 한글 매핑
+const reverseCategoryMap = Object.fromEntries(Object.entries(categoryMap).map(([k, v]) => [v, k]));
+
+const categories = ['전체', ...Object.keys(categoryMap)];
 
 export default function KnowledgeTable() {
   const [data, setData] = useState([]);
@@ -29,7 +42,7 @@ export default function KnowledgeTable() {
   };
 
   const filtered = data.filter(item =>
-    (filter === '전체' || item.category === filter) &&
+    (filter === '전체' || reverseCategoryMap[item.category_code] === filter) &&
     item.title.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -55,29 +68,38 @@ export default function KnowledgeTable() {
     const file = form.file.files[0];
 
     try {
-      let fileIds = [];
+      let file_id = null;
 
       if (file) {
-        const formData = new FormData();
-        formData.append('file', file);
-        const uploadRes = await axios.post('/api/file/upload', formData, {
+        const uploadForm = new FormData();
+        uploadForm.append('file', file);
+        uploadForm.append('board_code', 'knowledge');
+        uploadForm.append('board_id', 0);
+
+        const uploadRes = await axios.post('/api/file/upload', uploadForm, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-        fileIds = [uploadRes.data.file_id];
+
+        file_id = uploadRes.data.file_id;
       }
 
-      const payload = {
-        title,
-        content,
-        category,
-        tags: [],
-        files: fileIds,
-      };
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('content', content);
+      formData.append('category', categoryMap[category]);
+      if (file_id) formData.append('file_path', `/api/file/download/${file_id}`);
 
       if (editingItem) {
-        await axios.put(`/api/knowledge/${editingItem.id}`, payload);
+        await axios.put(`/api/knowledge/${editingItem.id}`, {
+          title,
+          content,
+          category_code: categoryMap[category],
+          file_path: file_id ? `/api/file/download/${file_id}` : null
+        });
       } else {
-        await axios.post('/api/knowledge/create', payload);
+        await axios.post('/api/knowledge/create', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
       }
 
       setShowModal(false);
@@ -121,7 +143,7 @@ export default function KnowledgeTable() {
           {paged.length > 0 ? (
             paged.map(item => (
               <tr key={item.id}>
-                <td>{item.category}</td>
+                <td>{reverseCategoryMap[item.category_code] || item.category_code}</td>
                 <td>{item.title}</td>
                 <td>{item.created_at?.slice(0, 10)}</td>
                 <td>
@@ -173,9 +195,9 @@ export default function KnowledgeTable() {
             <div className="modal-row">
               <label>카테고리</label>
               <div className="input-area">
-                <select name="category" defaultValue={editingItem?.category || ''} required>
+                <select name="category" defaultValue={reverseCategoryMap[editingItem?.category_code] || ''} required>
                   <option value="">카테고리 선택</option>
-                  {categories.filter(c => c !== '전체').map(cat => (
+                  {Object.keys(categoryMap).map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
                 </select>
