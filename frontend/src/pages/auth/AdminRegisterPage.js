@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../../styles/auth/AdminRegisterPage.css';
+import axiosInstance from '../../utils/axiosInstance';
 
 function AdminRegisterPage() {
   const [formData, setFormData] = useState({
@@ -28,16 +29,19 @@ function AdminRegisterPage() {
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username,
-          password,
-          role: 'admin',
-          admin_key: adminKey,
-        }),
-      });
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    username,
+    password,
+    role: 'admin',
+    admin_key: adminKey,
+  }),
+});
+
 
       if (!res.ok) {
         throw new Error('회원가입 실패');

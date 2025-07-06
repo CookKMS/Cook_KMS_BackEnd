@@ -26,6 +26,7 @@ export default function MyEmployeePage() {
   const [currentInquiryPage, setCurrentInquiryPage] = useState(1);
   const [currentKnowledgePage, setCurrentKnowledgePage] = useState(1);
   const itemsPerPage = 5;
+  const API_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:5000";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -108,7 +109,7 @@ export default function MyEmployeePage() {
                       <div className="file-attachment">
                         📎{" "}
                         <a
-                          href={`${process.env.REACT_APP_API_BASE_URL}/${item.file_path}`}
+                          href={`${API_URL}${item.file_path}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           download
@@ -176,19 +177,7 @@ export default function MyEmployeePage() {
                   <section className="card-details">
                     <strong>내용</strong>
                     <p>{String(item.content || "내용 없음")}</p>
-                    {item.file_path && (
-                      <div className="file-attachment">
-                        📎{" "}
-                        <a
-                          href={`${process.env.REACT_APP_API_BASE_URL}/${item.file_path}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          download
-                        >
-                          첨부파일 다운로드
-                        </a>
-                      </div>
-                    )}
+
                   </section>
                 )}
               </article>

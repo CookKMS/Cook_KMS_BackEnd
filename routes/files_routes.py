@@ -1,30 +1,31 @@
-from flask import Blueprint, request, jsonify
-from werkzeug.utils import secure_filename
-import os
-import uuid
+# routes/files_routes.py
+
+from flask import Blueprint, request
+from services.files_service import save_file, download_file_by_id
 
 file_bp = Blueprint("file_bp", __name__, url_prefix="/api/file")
 
 @file_bp.route("/upload", methods=["POST"])
 def upload_file():
-    file = request.files.get("file")
+    return save_file(request)
 
-    if not file:
-        return jsonify({"message": "파일이 누락되었습니다."}), 400
+@file_bp.route("/download/<int:file_id>", methods=["GET"])
+def download_file(file_id):
+    return download_file_by_id(file_id)
 
-    # 확장자 추출
-    ext = os.path.splitext(file.filename)[1]
-    # 고유 파일명 생성
-    filename = f"{uuid.uuid4()}{ext}"
+@file_bp.route("/<path:filename>", methods=["GET"])
+def serve_uploaded_file(filename):
+    """
+    /api/file/uploads/경로에 직접 접근하려는 경우를 위해 추가된 정적 파일 서빙 라우트
+    예: /api/file/uploads/knowledge/abc.jpg
+    """
+    from flask import send_from_directory, current_app, abort
+    import os
 
-    # 저장 경로 지정 및 생성
-    upload_dir = os.path.join("uploads", "comment_files")
-    os.makedirs(upload_dir, exist_ok=True)
+    safe_dir = os.path.join(current_app.root_path, "uploads")
+    full_path = os.path.join(safe_dir, filename)
 
-    # 파일 저장
-    file.save(os.path.join(upload_dir, filename))
+    if not os.path.isfile(full_path):
+        abort(404)
 
-    # 클라이언트에 반환할 경로 (슬래시 정규화 포함)
-    file_path = f"uploads/comment_files/{filename}".replace("\\", "/")
-
-    return jsonify({"file_path": file_path}), 200
+    return send_from_directory(directory=safe_dir, path=filename, as_attachment=False)

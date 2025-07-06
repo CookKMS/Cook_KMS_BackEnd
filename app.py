@@ -30,9 +30,10 @@ def create_app():
     init_db(app)
 
     # ✅ CORS 설정 (배포 시 origin 지정 권장)
-    CORS(app, resources={r"/api/*": {"origins": ["http://43.201.12.123", "http://43.201.12.123:3000"]}})
+    # CORS(app, resources={r"/api/*": {"origins": ["http://43.201.12.123", "http://43.201.12.123:3000"]}})
 
-
+    # 모든 출처에서 접근 허용 (로컬 개발 전용)
+    CORS(app, resources={r"/*": {"origins": "*"}})
 
     # ✅ API 블루프린트 등록
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
@@ -58,10 +59,6 @@ def create_app():
     def download_knowledge_file(filename):
         return send_from_directory(os.path.join(app.config["UPLOAD_FOLDER"], "knowledge"), filename, as_attachment=True)
 
-    # ✅ 파일 다운로드 (문의 전용)
-    @app.route('/uploads/inquiries/<filename>')
-    def download_inquiry_file(filename):
-        return send_from_directory('uploads/inquiries', filename, as_attachment=True)
 
     # ✅ React 정적 파일 서빙 (루트 경로)
     @app.route("/")

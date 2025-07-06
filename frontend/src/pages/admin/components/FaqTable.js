@@ -65,7 +65,6 @@ export default function FaqTable() {
         formData.append('title', title);
         formData.append('content', content);
         formData.append('category', category_code);
-        if (file) formData.append('file', file);
 
         await axios.post('/api/faq/create', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
@@ -209,14 +208,7 @@ export default function FaqTable() {
               </div>
             </div>
 
-            {modalType === 'add' && (
-              <div className="modal-row">
-                <label>첨부 파일</label>
-                <div className="input-area">
-                  <input type="file" accept=".pdf,.jpg,.jpeg" onChange={(e) => setFile(e.target.files[0])} />
-                </div>
-              </div>
-            )}
+
 
             <div className="modal-actions">
               <button type="button" className="cancel" onClick={() => setModalType(null)}>취소</button>

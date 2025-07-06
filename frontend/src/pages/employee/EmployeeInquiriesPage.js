@@ -263,9 +263,6 @@ export default function EmployeeInquiriesPage() {
             <label>문의 내용</label>
             <textarea name="inquiryContent" rows={5} value={newForm.inquiryContent} onChange={handleNewFormChange} required />
 
-            <label>첨부 파일</label>
-            <input name="fileUpload" type="file" onChange={handleNewFormChange} accept=".pdf,.jpg,.jpeg" />
-
             <footer className="modal-footer">
               <button type="button" className="btn cancel-btn" onClick={() => setShowNewModal(false)}>취소</button>
               <button type="submit" className="btn submit-btn">제출</button>

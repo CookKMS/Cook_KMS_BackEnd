@@ -19,7 +19,7 @@ def register_inquiry():
     # ✅ FormData에서 값 추출
     title = request.form.get("title")
     content = request.form.get("content")
-    category_code = request.form.get("category")  # 프론트에서는 category, 모델은 category_code
+    category_code = request.form.get("category_code")
     file = request.files.get("file")
 
     # ✅ 파일 저장 처리

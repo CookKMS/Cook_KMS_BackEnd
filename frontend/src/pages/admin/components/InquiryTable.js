@@ -50,7 +50,6 @@ const handleSave = async (e) => {
   const form = e.target;
   const status = form.status.value;
   const content = form.response.value;
-  const file = form.file.files[0];
 
   try {
     if (editingItem.comments?.length > 0) {
@@ -58,17 +57,6 @@ const handleSave = async (e) => {
     }
 
     let uploadedFilePath = null;
-
-    if (file) {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const res = await axios.post('/api/file/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
-      uploadedFilePath = res.data.file_path;
-    }
 
     // ✅ 댓글 등록 (파일 경로 포함)
     await axios.post(`/api/inquiry/${editingItem.id}/comment`, {
@@ -121,7 +109,7 @@ const handleSave = async (e) => {
       <table className="inquiry-table">
         <thead>
           <tr>
-      
+
             <th>고객사</th>
             <th>제목</th>
             <th>상태</th>
@@ -144,7 +132,7 @@ const handleSave = async (e) => {
                 <button className="view" onClick={() => setEditingItem(item)}>
                   {item.status === '02' ? '답변 보기' : '답변 작성'}
                 </button>
-              
+
               </td>
             </tr>
           ))}
@@ -193,14 +181,6 @@ const handleSave = async (e) => {
                   rows={5}
                   required
                 />
-              </div>
-            </div>
-
-            <div className="modal-row">
-              <label htmlFor="file">첨부 파일</label>
-              <div className="input-area">
-                <input type="file" name="file" accept=".pdf,.jpg,.jpeg" />
-                <p className="file-hint">PDF, JPG 파일만 업로드 가능 (최대 5MB)</p>
               </div>
             </div>
 

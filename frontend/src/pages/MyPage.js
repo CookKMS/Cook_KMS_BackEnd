@@ -12,21 +12,26 @@ export default function MyPage() {
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const inquiriesPerPage = 5;
+  const API_URL = process.env.REACT_APP_API_URL;
 
-   // ✅ 나의 문의 목록 불러오기
+  // ✅ 파일 경로 보정 함수
+  const normalizePath = (path) => {
+    if (!path) return "";
+    return path.startsWith("/") ? path : `/${path}`;
+  };
+
   useEffect(() => {
-   const fetchMyInquiries = async () => {
-     try {
-       const res = await axios.get("/api/my/inquiries");
-       setInquiries(res.data.inquiries); // ✅ 수정됨
-     } catch (err) {
-       console.error("나의 문의 불러오기 실패:", err);
-       setInquiries([]); // 방어
-     }
-   };
-   fetchMyInquiries();
+    const fetchMyInquiries = async () => {
+      try {
+        const res = await axios.get("/api/my/inquiries");
+        setInquiries(res.data.inquiries);
+      } catch (err) {
+        console.error("나의 문의 불러오기 실패:", err);
+        setInquiries([]);
+      }
+    };
+    fetchMyInquiries();
   }, []);
- 
 
   const totalPages = Math.ceil(inquiries.length / inquiriesPerPage);
   const paged = inquiries.slice(
@@ -35,14 +40,13 @@ export default function MyPage() {
   );
 
   const toggleExpand = (id) => {
-    setExpandedId(prev => (prev === id ? null : id));
+    setExpandedId((prev) => (prev === id ? null : id));
   };
 
-  // ✅ 문의 삭제
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/api/my/inquiries/${id}`); // ✅ 수정됨
-      setInquiries(prev => prev.filter(q => q.id !== id));
+      await axios.delete(`/api/my/inquiries/${id}`);
+      setInquiries((prev) => prev.filter((q) => q.id !== id));
       setConfirmDeleteId(null);
       if (expandedId === id) setExpandedId(null);
     } catch (err) {
@@ -51,7 +55,6 @@ export default function MyPage() {
     }
   };
 
-  // ✅ 문의 수정
   const handleEditSave = async (e) => {
     e.preventDefault();
     const form = e.target;
@@ -62,8 +65,8 @@ export default function MyPage() {
     };
 
     try {
-      await axios.put(`/api/my/inquiries/${editingItem.id}`, updated); // ✅ 수정됨
-      setInquiries(prev =>
+      await axios.put(`/api/my/inquiries/${editingItem.id}`, updated);
+      setInquiries((prev) =>
         prev.map((q) =>
           q.id === editingItem.id ? { ...q, ...updated } : q
         )
@@ -120,8 +123,8 @@ export default function MyPage() {
                       </>
                     ) : (
                       <>
-                        <button className="btn-disabled" disabled title="답변 완료된 문의는 삭제할 수 없습니다.">🗑️</button>
-                        <button className="btn-disabled" disabled title="답변 완료된 문의는 수정할 수 없습니다.">✏️</button>
+                        <button className="btn-disabled" disabled>🗑️</button>
+                        <button className="btn-disabled" disabled>✏️</button>
                       </>
                     )}
                   </div>
@@ -132,11 +135,20 @@ export default function MyPage() {
                     <div className="inquiry-content-section">
                       <strong>문의 내용</strong>
                       <p>{item.content}</p>
+
                       {item.file_path && (
-                        <a href={item.file_path} target="_blank" rel="noreferrer">
-                          📎 첨부파일 다운로드
-                        </a>
+                        <div className="file-attachment">
+                          📎{" "}
+                          <a
+                            href={`${API_URL}${normalizePath(item.file_path)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            첨부파일 다운로드
+                          </a>
+                        </div>
                       )}
+
                       <time className="content-date">{item.created_at?.slice(0, 10).replace(/-/g, ".")}</time>
                     </div>
                     {item.comments && item.comments.length > 0 ? (
@@ -146,7 +158,7 @@ export default function MyPage() {
                       </div>
                     ) : (
                       <div className="pending-answer-notice">
-                        <i>ℹ️</i> 현재 문의 내용을 검토 중입니다. 빠른 시일 내에 답변 드리겠습니다.
+                        <i>ℹ️</i> 현재 문의 내용을 검토 중입니다.
                       </div>
                     )}
                   </section>
@@ -157,7 +169,7 @@ export default function MyPage() {
 
           {/* 페이지네이션 */}
           {totalPages > 1 && (
-            <nav className="pagination" aria-label="페이지 이동">
+            <nav className="pagination">
               <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>
                 &lt;
               </button>
