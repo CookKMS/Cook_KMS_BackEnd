@@ -1,14 +1,15 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '.env'))
 
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY")
     JWT_SECRET_KEY = SECRET_KEY
     JWT_EXPIRATION_DELTA = int(os.getenv("JWT_EXPIRATION_DELTA", 3600))
 
-    UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")  # /uploads
+    BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+    UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB
 
     JWT_TOKEN_LOCATION = ['headers']

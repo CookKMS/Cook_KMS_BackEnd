@@ -30,10 +30,10 @@ def create_app():
     init_db(app)
 
     # ✅ CORS 설정 (배포 시 origin 지정 권장)
-    # CORS(app, resources={r"/api/*": {"origins": ["http://43.201.12.123", "http://43.201.12.123:3000"]}})
-
-    # 모든 출처에서 접근 허용 (로컬 개발 전용)
-    CORS(app, resources={r"/*": {"origins": "*"}})
+    CORS(app, resources={r"/api/*": {"origins": ["http://43.200.191.18", "http://43.200.191.18:3000", "http://43.200.191.18:5000"]}})
+    #
+    # # 모든 출처에서 접근 허용 (로컬 개발 전용)
+    # CORS(app, resources={r"/*": {"origins": "*"}})
 
     # ✅ API 블루프린트 등록
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
