@@ -210,8 +210,16 @@
                 </div>
               </div>
 
+               <div className="modal-row">
+                  <label>첨부파일</label>
+                  <div className="input-area">
+                    <input type="file" name="file" />
+                  </div>
+                </div>
+
               <div className="modal-actions">
                 <button type="button" className="cancel" onClick={() => setShowModal(false)}>취소</button>
+                <button type="submit">저장</button>
               </div>
             </form>
             </div>

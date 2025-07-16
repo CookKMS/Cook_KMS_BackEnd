@@ -89,7 +89,7 @@ export default function EmployeeInquiriesPage() {
     try {
       const formData = new FormData();
       formData.append("title", title);
-      formData.append("category", categoryMap[category]); // 한글 → 코드 변환
+      formData.append("category_code    ", categoryMap[category]); // 한글 → 코드 변환
       formData.append("customer", customer);
       formData.append("content", inquiryContent);
       if (file) formData.append("file", file);
